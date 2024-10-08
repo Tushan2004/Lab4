@@ -1,4 +1,6 @@
 package model;
+import java.util.Random;
+
 
 public class SudokuUtilities {
 
@@ -26,6 +28,7 @@ public class SudokuUtilities {
             case HARD: representationString = hard; break;
             default: representationString = medium;
         }
+        randomizeStartMatrix(representationString);
         return convertStringToIntMatrix(representationString);
     }
 
@@ -72,6 +75,30 @@ public class SudokuUtilities {
     private static int convertCharToSudokuInt(char ch) {
         if (ch < '0' || ch > '9') throw new IllegalArgumentException("character " + ch);
         return ch - '0';
+    }
+
+    private static void randomizeStartMatrix(String stringRepresentation) {
+        Random random = new Random();
+        int randomNumber = random.nextInt(3);
+        switch (randomNumber) {
+            case 0: mirrorHorizontally(stringRepresentation); break;
+            case 1: mirrorVertically(stringRepresentation); break;
+            case 2: swapPair(stringRepresentation); break;
+        }
+    }
+
+    private static void mirrorHorizontally(String stringRepresentation) {
+        int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
+    }
+
+    private static void mirrorVertically(String stringRepresentation) {
+        int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
+    }
+
+    private static void swapPair(String stringRepresentation) {
+        int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
+
+
     }
 
     private static final String easy =
