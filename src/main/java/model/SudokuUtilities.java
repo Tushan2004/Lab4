@@ -87,13 +87,73 @@ public class SudokuUtilities {
         }
     }
 
+    private static String convertMatrixToString(int[][][] matrix) {
+        StringBuilder builder = new StringBuilder();
+
+        // Först lägger vi till de initiala värdena
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                builder.append(matrix[row][col][0]);
+            }
+        }
+
+        // Sedan lägger vi till lösningsvärdena
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                builder.append(matrix[row][col][1]);
+            }
+        }
+
+        return builder.toString();
+    }
+
+
     private static void mirrorHorizontally(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
+
+        // Loop över hälften av raderna för att spegla horisontellt
+        for (int row = 0; row < GRID_SIZE / 2; row++) {
+            int oppositeRow = GRID_SIZE - 1 - row;
+
+            // Byt rad row med rad oppositeRow
+            for (int col = 0; col < GRID_SIZE; col++) {
+                int temp = matrix[row][col][0];
+                matrix[row][col][0] = matrix[oppositeRow][col][0];
+                matrix[oppositeRow][col][0] = temp;
+
+                temp = matrix[row][col][1];
+                matrix[row][col][1] = matrix[oppositeRow][col][1];
+                matrix[oppositeRow][col][1] = temp;
+            }
+        }
+
+        // Uppdatera stringRepresentation från matrisen
+        convertMatrixToString(matrix);
     }
 
     private static void mirrorVertically(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
+
+        // Loop över hälften av kolumnerna för att spegla vertikalt
+        for (int col = 0; col < GRID_SIZE / 2; col++) {
+            int oppositeCol = GRID_SIZE - 1 - col;
+
+            // Byt kolumn col med kolumn oppositeCol
+            for (int row = 0; row < GRID_SIZE; row++) {
+                int temp = matrix[row][col][0];
+                matrix[row][col][0] = matrix[row][oppositeCol][0];
+                matrix[row][oppositeCol][0] = temp;
+
+                temp = matrix[row][col][1];
+                matrix[row][col][1] = matrix[row][oppositeCol][1];
+                matrix[row][oppositeCol][1] = temp;
+            }
+        }
+
+        // Uppdatera stringRepresentation från matrisen
+        convertMatrixToString(matrix);
     }
+
 
     private static void swapPair(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
