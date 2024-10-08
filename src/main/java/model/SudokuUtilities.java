@@ -28,8 +28,8 @@ public class SudokuUtilities {
             case HARD: representationString = hard; break;
             default: representationString = medium;
         }
-        randomizeStartMatrix(representationString);
-        return convertStringToIntMatrix(representationString);
+        String newMatrix = randomizeStartMatrix(representationString);
+        return convertStringToIntMatrix(newMatrix);
     }
 
     /**
@@ -77,14 +77,15 @@ public class SudokuUtilities {
         return ch - '0';
     }
 
-    private static void randomizeStartMatrix(String stringRepresentation) {
+    private static String randomizeStartMatrix(String stringRepresentation) {
         Random random = new Random();
-        int randomNumber = random.nextInt(3);
+        int randomNumber = 2;
         switch (randomNumber) {
-            case 0: mirrorHorizontally(stringRepresentation); break;
-            case 1: mirrorVertically(stringRepresentation); break;
-            case 2: swapPair(stringRepresentation); break;
+            case 0: return mirrorHorizontally(stringRepresentation);
+            case 1: return mirrorVertically(stringRepresentation);
+            case 2: return swapPair(stringRepresentation);
         }
+        return null;
     }
 
     private static String convertMatrixToString(int[][][] matrix) {
@@ -108,7 +109,7 @@ public class SudokuUtilities {
     }
 
 
-    private static void mirrorHorizontally(String stringRepresentation) {
+    private static String mirrorHorizontally(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
 
         // Loop över hälften av raderna för att spegla horisontellt
@@ -128,10 +129,10 @@ public class SudokuUtilities {
         }
 
         // Uppdatera stringRepresentation från matrisen
-        convertMatrixToString(matrix);
+        return convertMatrixToString(matrix);
     }
 
-    private static void mirrorVertically(String stringRepresentation) {
+    private static String mirrorVertically(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
 
         // Loop över hälften av kolumnerna för att spegla vertikalt
@@ -151,18 +152,37 @@ public class SudokuUtilities {
         }
 
         // Uppdatera stringRepresentation från matrisen
-        convertMatrixToString(matrix);
+        return convertMatrixToString(matrix);
     }
 
 
-    private static void swapPair(String stringRepresentation) {
+    private static String swapPair(String stringRepresentation) {
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
 
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                if (matrix[i][j][1] == 1) {
+                    matrix[i][j][1] = 2;
+                    if (matrix[i][j][0] != 0) {
+                        matrix[i][j][0] = 2;
+                    }
+                }
+                else if (matrix[i][j][1] == 2) {
+                    matrix[i][j][1] = 1;
+                    if (matrix[i][j][0] != 0) {
+                        matrix[i][j][0] = 1;
+                    }
+                }
+            }
+        }
 
+        // Om det behövs, uppdatera stringRepresentation
+        return convertMatrixToString(matrix);
+        // Här kan du använda updatedRepresentation för ytterligare behandling
     }
 
     private static final String easy =
-            "000914070" +
+                    "000914070" +
                     "010000054" +
                     "040002000" +
                     "007569001" +
@@ -182,7 +202,7 @@ public class SudokuUtilities {
                     "178493265";
 
     private static final String medium =
-            "300000010" +
+                    "300000010" +
                     "000050906" +
                     "050401200" +
                     "030000080" +
@@ -202,7 +222,7 @@ public class SudokuUtilities {
                     "143825697";
 
     private static final String hard =
-            "030600000" +
+                    "030600000" +
                     "000010070" +
                     "080000000" +
                     "000020000" +

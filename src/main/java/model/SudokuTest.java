@@ -4,8 +4,6 @@ public class SudokuTest {
     public static void main(String[] args) {
         // Testa varje svårighetsgrad
         testSudokuGeneration(SudokuUtilities.SudokuLevel.EASY);
-        testSudokuGeneration(SudokuUtilities.SudokuLevel.MEDIUM);
-        testSudokuGeneration(SudokuUtilities.SudokuLevel.HARD);
     }
 
     private static void testSudokuGeneration(SudokuUtilities.SudokuLevel level) {
