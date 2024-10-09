@@ -93,9 +93,14 @@ public class ViewTest extends Application {
         MenuItem newGameItem = new MenuItem("New Game"); // Menyobjekt för nytt spel
         MenuItem exitItem = new MenuItem("Exit"); // Menyobjekt för avsluta
 
+        Menu gameMenu = new Menu("Game");
+        Menu helpMenu = new Menu("Help");
+
         // Lägg till menyobjekt i filmenyn
         fileMenu.getItems().addAll(newGameItem, exitItem);
-        menuBar.getMenus().addAll(fileMenu); // Lägg till filmenyn i menybaren
+        gameMenu.getItems().addAll();
+        helpMenu.getItems().addAll();
+        menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu); // Lägg till filmenyn i menybaren
 
         return menuBar; // Returnera den skapade menybaren
     }
