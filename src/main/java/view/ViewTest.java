@@ -1,78 +1,75 @@
 package view;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import model.SudokuModel;
 
 public class ViewTest extends Application {
+    private static final int GRID_SIZE = 9;
+    private static final int SECTION_SIZE = 3;
+    private static final int SECTIONS_PER_ROW = 3;
+
+    private Label[][] numberTiles; // the tiles/squares to show in the UI grid
+    private GridPane numberPane;
+    private VBox numberSelector, leftButtons;
+    private Button button;
+    private MenuBar menuBar;
+
     @Override
     public void start(Stage primaryStage) {
-        // Skapa ett Sudoku-spel
-        SudokuModel game = new SudokuModel();
-        game.initializeBoard();
-        int[][] array = game.getBoardState();
+        numberTiles = new Label[GRID_SIZE][GRID_SIZE];
+        initNumberTiles();
+        numberPane = makeNumberPane();
+        numberPane.setPrefWidth(100); // Justera till lämplig storlek
+        numberSelector = createButtons();
+        leftButtons = createLeftButtons();
 
-        // Skapa ett TilePane för spelbrädet
-        TilePane gameBoard = new TilePane();
-        gameBoard.setPrefColumns(9);
-        gameBoard.setMaxWidth(270); // Ställ in antal kolumner till 9
+        BorderPane root = new BorderPane();
+        root.setLeft(leftButtons);
+        root.setCenter(numberPane);
+        root.setRight(numberSelector);
+        root.setPadding(new Insets(10));
 
-        // Skapa en TilePane för att arrangera nummerknapparna
-        TilePane tilePane = new TilePane();
-        tilePane.setPrefColumns(3); // Ställ in kolumner till 3
+        menuBar = createMenuBar(); // Skapa menybaren
+        VBox mainLayout = new VBox(menuBar, root); // Lägg till menybaren i layout
+        Scene scene = new Scene(mainLayout, 470, 390);
 
-        VBox chooseNmr = new VBox(5); // 5 pixlar mellan varje knapp
+        primaryStage.setTitle("Sudoku");
+        primaryStage.setScene(scene);
+        primaryStage.sizeToScene();
+        primaryStage.setResizable(false);
+        primaryStage.show();
+    }
+
+    private VBox createButtons() {
+        VBox chooseNmr = new VBox(2); // 5 pixlar mellan varje knapp
+
+        chooseNmr.setPadding(new Insets(10));
 
         // Skapa knappar från 1 till 9
         for (int i = 1; i <= 9; i++) {
-            Button button = new Button(String.valueOf(i));
+            button = new Button(String.valueOf(i));
             chooseNmr.getChildren().add(button); // Lägg till knappen i VBox
+            button.setPrefWidth(30);
+            button.setPrefHeight(30);
         }
-        Button button = new Button(String.valueOf("C"));
-        chooseNmr.getChildren().add(button); // Lägg till knappen i VBox
+        Button clearButton = new Button("C");
+        chooseNmr.getChildren().add(clearButton);// Lägg till knappen i VBox
+        clearButton.setPrefWidth(30);
+        clearButton.setPrefHeight(30);
 
-        // Lägg till siffror som etiketter i spelbrädet
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                Label numberLabel;
+        return chooseNmr;
+    }
 
-                if (array[i][j] == 0) {
-                    numberLabel = new Label(); // Skapa en tom etikett
-                } else {
-                    numberLabel = new Label(String.valueOf(array[i][j])); // Skapa etikett för varje siffra
-                }
-
-                numberLabel.setPrefWidth(30); // Sätt preferensbredd
-                numberLabel.setPrefHeight(30); // Sätt preferenshöjd
-                numberLabel.setStyle("-fx-border-color: black; -fx-background-color: lightgray; -fx-alignment: center;"); // Stil
-                numberLabel.setAlignment(javafx.geometry.Pos.CENTER); // Centrera text
-                gameBoard.getChildren().add(numberLabel); // Lägg till etikett i TilePane
-            }
-        }
-
-        // Skapa en MenuBar
-        MenuBar menuBar = new MenuBar();
-        Menu fileMenu = new Menu("File");
-        MenuItem newGameItem = new MenuItem("New Game");
-        MenuItem exitItem = new MenuItem("Exit");
-
-        // Lägg till menyobjekt i menyn
-        fileMenu.getItems().addAll(newGameItem, exitItem);
-        menuBar.getMenus().addAll(fileMenu);
-
-        Button checkButton = new Button("Check");
-        Button hintButton = new Button("Hint");
-
-
-        // Lägg knapparna i en VBox på vänstra sidan
-        VBox leftSideButtons = new VBox(10); // 10 pixlar mellan varje knapp
+    private VBox createLeftButtons() {
+        VBox leftSideButtons = new VBox(10);
 
         // Skapa en tom region för att centrera knapparna
         Region spacerTop = new Region();
@@ -80,23 +77,72 @@ public class ViewTest extends Application {
         VBox.setVgrow(spacerTop, Priority.ALWAYS); // Fyll utrymmet ovanför med spacer
         VBox.setVgrow(spacerBottom, Priority.ALWAYS); // Fyll utrymmet under med spacer
 
+        leftSideButtons.setPadding(new Insets(10));
+
+        Button checkButton = new Button("Check");
+        Button hintButton = new Button("Hint");
+
         leftSideButtons.getChildren().addAll(spacerTop, checkButton, hintButton, spacerBottom);
+        return leftSideButtons;
+    }
+
+    private MenuBar createMenuBar() {
+        MenuBar menuBar = new MenuBar(); // Skapa en meny
+
+        Menu fileMenu = new Menu("File"); // Skapa en filmeny
+        MenuItem newGameItem = new MenuItem("New Game"); // Menyobjekt för nytt spel
+        MenuItem exitItem = new MenuItem("Exit"); // Menyobjekt för avsluta
+
+        // Lägg till menyobjekt i filmenyn
+        fileMenu.getItems().addAll(newGameItem, exitItem);
+        menuBar.getMenus().addAll(fileMenu); // Lägg till filmenyn i menybaren
+
+        return menuBar; // Returnera den skapade menybaren
+    }
+
+    private void initNumberTiles() {
+        Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
+        SudokuModel sudokuModel = new SudokuModel();
+        int[][] array = sudokuModel.getBoardState();
+        Label tile;
+
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                if (array[row][col] == 0) {
+                    tile = new Label(); // Skapa en tom etikett
+                } else {
+                    tile = new Label(String.valueOf(array[row][col])); // Skapa etikett för varje siffra
+                }
+                tile.setPrefWidth(50);
+                tile.setPrefHeight(50);
+                tile.setFont(font);
+                tile.setAlignment(Pos.CENTER);
+                tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
+                numberTiles[row][col] = tile;
+            }
+        }
+    }
+
+    private GridPane makeNumberPane() {
+        GridPane root = new GridPane();
+        root.setStyle("-fx-border-color: black; -fx-border-width: 1.0px; -fx-background-color: white;");
 
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setLeft(leftSideButtons); // Placera knapparna på vänstra sidan (centrerade)
-        borderPane.setCenter(gameBoard); // Placera spelbrädet i mitten
-        borderPane.setRight(chooseNmr); // Placera nummerknapparna på högra sidan
 
-        // Skapa en VBox som root
-        VBox root = new VBox();
-        root.getChildren().addAll(menuBar, borderPane); // Sätt MenuBar högst upp och BorderPane som layout
+        for (int srow = 0; srow < SECTIONS_PER_ROW; srow++) {
+            for (int scol = 0; scol < SECTIONS_PER_ROW; scol++) {
+                GridPane section = new GridPane();
+                section.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
 
-        // Skapa scenen och visa den
-        Scene scene = new Scene(root, 500, 50); // Justera storleken på scenen om nödvändigt
-        primaryStage.setTitle("Sudoku med Hint och Check");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+                for (int row = 0; row < SECTION_SIZE; row++) {
+                    for (int col = 0; col < SECTION_SIZE; col++) {
+                        section.add(numberTiles[srow * SECTION_SIZE + row][scol * SECTION_SIZE + col], col, row);
+                    }
+                }
+                root.add(section, scol, srow);
+            }
+        }
+        return root;
     }
 
     public static void main(String[] args) {
