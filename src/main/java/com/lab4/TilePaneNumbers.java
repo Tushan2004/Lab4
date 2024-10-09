@@ -22,7 +22,7 @@ public class TilePaneNumbers extends Application {
         // Skapa en TilePane
         TilePane tilePane = new TilePane();
         tilePane.setPrefColumns(9);
-        tilePane.setMaxWidth(270);// Ställ in antal kolumner till 9
+        tilePane.setMaxWidth(290);// Ställ in antal kolumner till 9
 
         // Lägg till siffror som etiketter
         for (int i = 0; i < array.length; i++) {
@@ -59,7 +59,7 @@ public class TilePaneNumbers extends Application {
         root.setCenter(tilePane); // Sätt TilePane i mitten
 
         // Skapa scenen och visa den
-        Scene scene = new Scene(root, 300, 300); // Justera storleken på scenen om nödvändigt
+        Scene scene = new Scene(root, 500, 500); // Justera storleken på scenen om nödvändigt
         primaryStage.setTitle("TilePane med 9x9 Sudoku");
         primaryStage.setScene(scene);
         primaryStage.show();
