@@ -93,7 +93,7 @@ public class ViewTest extends Application {
         root.getChildren().addAll(menuBar, borderPane); // Sätt MenuBar högst upp och BorderPane som layout
 
         // Skapa scenen och visa den
-        Scene scene = new Scene(root, 500, 500); // Justera storleken på scenen om nödvändigt
+        Scene scene = new Scene(root, 500, 50); // Justera storleken på scenen om nödvändigt
         primaryStage.setTitle("Sudoku med Hint och Check");
         primaryStage.setScene(scene);
         primaryStage.show();
