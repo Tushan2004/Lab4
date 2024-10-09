@@ -67,9 +67,9 @@ public class ViewTest extends Application {
         fileMenu.getItems().addAll(newGameItem, exitItem);
         menuBar.getMenus().addAll(fileMenu);
 
-
-        Button hintButton = new Button("Hint");
         Button checkButton = new Button("Check");
+        Button hintButton = new Button("Hint");
+
 
         // Lägg knapparna i en VBox på vänstra sidan
         VBox leftSideButtons = new VBox(10); // 10 pixlar mellan varje knapp
@@ -80,7 +80,7 @@ public class ViewTest extends Application {
         VBox.setVgrow(spacerTop, Priority.ALWAYS); // Fyll utrymmet ovanför med spacer
         VBox.setVgrow(spacerBottom, Priority.ALWAYS); // Fyll utrymmet under med spacer
 
-        leftSideButtons.getChildren().addAll(spacerTop, hintButton, checkButton, spacerBottom);
+        leftSideButtons.getChildren().addAll(spacerTop, checkButton, hintButton, spacerBottom);
 
 
         BorderPane borderPane = new BorderPane();
