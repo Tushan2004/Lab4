@@ -6,6 +6,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import model.SudokuModel;
 
@@ -17,29 +19,28 @@ public class ViewTest extends Application {
         game.initializeBoard();
         int[][] array = game.getBoardState();
 
-        // Skapa en TilePane
+        // Skapa ett TilePane för spelbrädet
         TilePane gameBoard = new TilePane();
         gameBoard.setPrefColumns(9);
-        gameBoard.setMaxWidth(270);// Ställ in antal kolumner till 9
+        gameBoard.setMaxWidth(270); // Ställ in antal kolumner till 9
 
-        // Skapa en TilePane för att arrangera knapparna
+        // Skapa en TilePane för att arrangera nummerknapparna
         TilePane tilePane = new TilePane();
         tilePane.setPrefColumns(3); // Ställ in kolumner till 3
 
-        VBox chooseNmr = new VBox(5); // 10 pixlar mellan varje knapp
+        VBox chooseNmr = new VBox(5); // 5 pixlar mellan varje knapp
 
         // Skapa knappar från 1 till 9
         for (int i = 1; i <= 9; i++) {
             Button button = new Button(String.valueOf(i));
-            // Valfritt: Lägg till en händelsehanterare
-            chooseNmr.getChildren().add(button); // Lägg till knappen i TilePane
+            chooseNmr.getChildren().add(button); // Lägg till knappen i VBox
         }
         Button button = new Button(String.valueOf("C"));
-        chooseNmr.getChildren().add(button); // Lägg till knappen i TilePane
+        chooseNmr.getChildren().add(button); // Lägg till knappen i VBox
 
-        // Lägg till siffror som etiketter
+        // Lägg till siffror som etiketter i spelbrädet
         for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array.length; j++) {
+            for (int j = 0; j < array[i].length; j++) {
                 Label numberLabel;
 
                 if (array[i][j] == 0) {
@@ -62,22 +63,38 @@ public class ViewTest extends Application {
         MenuItem newGameItem = new MenuItem("New Game");
         MenuItem exitItem = new MenuItem("Exit");
 
-        // Lägg till menyobjekt
+        // Lägg till menyobjekt i menyn
         fileMenu.getItems().addAll(newGameItem, exitItem);
         menuBar.getMenus().addAll(fileMenu);
 
-        BorderPane borderPane = new BorderPane();
-        //borderPane.setLeft();
-        borderPane.setCenter(gameBoard);
-        borderPane.setRight(chooseNmr);
 
-        // Skapa en Vbox som root
+        Button hintButton = new Button("Hint");
+        Button checkButton = new Button("Check");
+
+        // Lägg knapparna i en VBox på vänstra sidan
+        VBox leftSideButtons = new VBox(10); // 10 pixlar mellan varje knapp
+
+        // Skapa en tom region för att centrera knapparna
+        Region spacerTop = new Region();
+        Region spacerBottom = new Region();
+        VBox.setVgrow(spacerTop, Priority.ALWAYS); // Fyll utrymmet ovanför med spacer
+        VBox.setVgrow(spacerBottom, Priority.ALWAYS); // Fyll utrymmet under med spacer
+
+        leftSideButtons.getChildren().addAll(spacerTop, hintButton, checkButton, spacerBottom);
+
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setLeft(leftSideButtons); // Placera knapparna på vänstra sidan (centrerade)
+        borderPane.setCenter(gameBoard); // Placera spelbrädet i mitten
+        borderPane.setRight(chooseNmr); // Placera nummerknapparna på högra sidan
+
+        // Skapa en VBox som root
         VBox root = new VBox();
-        root.getChildren().addAll(menuBar,borderPane); // Sätt MenuBar högst upp // Sätt TilePane i mitten
+        root.getChildren().addAll(menuBar, borderPane); // Sätt MenuBar högst upp och BorderPane som layout
 
         // Skapa scenen och visa den
         Scene scene = new Scene(root, 500, 500); // Justera storleken på scenen om nödvändigt
-        primaryStage.setTitle("TilePane med 9x9 Sudoku");
+        primaryStage.setTitle("Sudoku med Hint och Check");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -86,4 +103,3 @@ public class ViewTest extends Application {
         launch(args);
     }
 }
-

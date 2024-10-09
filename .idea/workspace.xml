@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="fa19a069-d883-4f97-a6be-4db2d201d338" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/model/SudokuUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/SudokuUtilities.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/view/ViewTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/view/ViewTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +43,7 @@
   "keyToString": {
     "Application.HelloApplication.executor": "Run",
     "Application.SudokuTest.executor": "Run",
+    "Application.ViewTest.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true"
