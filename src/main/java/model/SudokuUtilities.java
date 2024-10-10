@@ -72,6 +72,8 @@ public class SudokuUtilities {
         return values;
     }
 
+
+
     private static int convertCharToSudokuInt(char ch) {
         if (ch < '0' || ch > '9') throw new IllegalArgumentException("character " + ch);
         return ch - '0';
