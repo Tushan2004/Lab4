@@ -11,6 +11,7 @@ public class SudokuModel {
     // Initialiserar brädet från en genererad matris
     public void initializeBoard() {
         int[][][] matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
+
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 int initialValue = matrix[row][col][0];

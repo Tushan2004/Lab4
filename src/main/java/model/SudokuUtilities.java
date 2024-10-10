@@ -241,4 +241,3 @@ public class SudokuUtilities {
                     "154873269" +
                     "728196453";
 }
-

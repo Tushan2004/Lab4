@@ -39,7 +39,7 @@ public class ViewTest extends Application {
 
         menuBar = createMenuBar(); // Skapa menybaren
         VBox mainLayout = new VBox(menuBar, root); // Lägg till menybaren i layout
-        Scene scene = new Scene(mainLayout, 470, 390);
+        Scene scene = new Scene(mainLayout, 495, 400);
 
         primaryStage.setTitle("Sudoku");
         primaryStage.setScene(scene);
@@ -95,12 +95,18 @@ public class ViewTest extends Application {
         MenuItem exitItem = new MenuItem("Exit"); // Menyobjekt för avsluta
 
         Menu gameMenu = new Menu("Game");
+        MenuItem restartGameItem = new MenuItem("Restart game");
+        MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
         Menu helpMenu = new Menu("Help");
+        MenuItem clearBoardItem= new MenuItem("Clear board");
+        MenuItem  checkFilledNumbersItem= new MenuItem("Check filled numbers");
+        MenuItem  getGameRulesItem= new MenuItem("Get game rules");
+
 
         // Lägg till menyobjekt i filmenyn
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
-        gameMenu.getItems().addAll();
-        helpMenu.getItems().addAll();
+        gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
+        helpMenu.getItems().addAll(clearBoardItem, checkFilledNumbersItem, getGameRulesItem);
         menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu); // Lägg till filmenyn i menybaren
 
         return menuBar; // Returnera den skapade menybaren
