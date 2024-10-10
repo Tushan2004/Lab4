@@ -99,14 +99,13 @@ public class ViewTest extends Application {
         MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
         Menu helpMenu = new Menu("Help");
         MenuItem clearBoardItem= new MenuItem("Clear board");
-        MenuItem  checkFilledNumbersItem= new MenuItem("Check filled numbers");
         MenuItem  getGameRulesItem= new MenuItem("Get game rules");
 
 
         // Lägg till menyobjekt i filmenyn
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
         gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
-        helpMenu.getItems().addAll(clearBoardItem, checkFilledNumbersItem, getGameRulesItem);
+        helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
         menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu); // Lägg till filmenyn i menybaren
 
         return menuBar; // Returnera den skapade menybaren
