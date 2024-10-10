@@ -16,14 +16,17 @@ public class ViewTest extends Application {
     private static final int SECTION_SIZE = 3;
     private static final int SECTIONS_PER_ROW = 3;
 
-    private Label[][] numberTiles; // the tiles/squares to show in the UI grid
+    private Label[][] numberTiles; // Rutorna som visar siffror
     private GridPane numberPane;
     private VBox numberSelector, leftButtons;
     private Button button;
     private MenuBar menuBar;
+    private SudokuModel sudokuModel; // Referens till modellen
+    private int selectedNumber; // Det valda numret för att fylla i
 
     @Override
     public void start(Stage primaryStage) {
+        sudokuModel = new SudokuModel(); // Initiera modellen
         numberTiles = new Label[GRID_SIZE][GRID_SIZE];
         initNumberTiles();
         numberPane = makeNumberPane();
@@ -59,11 +62,22 @@ public class ViewTest extends Application {
             chooseNmr.getChildren().add(button); // Lägg till knappen i VBox
             button.setPrefWidth(30);
             button.setPrefHeight(30);
+            // Lägg till händelsehanterare för varje knapp
+            int number = i; // För att undvika problem med scoping
+            button.setOnAction(e -> {
+                selectedNumber = number; // Sätt det valda numret
+            });
         }
         Button clearButton = new Button("C");
-        chooseNmr.getChildren().add(clearButton);// Lägg till knappen i VBox
+        chooseNmr.getChildren().add(clearButton); // Lägg till knappen i VBox
         clearButton.setPrefWidth(30);
         clearButton.setPrefHeight(30);
+
+        // Händelsehanterare för Clear-knappen
+        clearButton.setOnAction(e -> {
+            // Återställ det valda numret
+            selectedNumber = 0;
+        });
 
         return chooseNmr;
     }
@@ -98,9 +112,14 @@ public class ViewTest extends Application {
         MenuItem restartGameItem = new MenuItem("Restart game");
         MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
         Menu helpMenu = new Menu("Help");
-        MenuItem clearBoardItem= new MenuItem("Clear board");
-        MenuItem  getGameRulesItem= new MenuItem("Get game rules");
+        MenuItem clearBoardItem = new MenuItem("Clear board"); // Skapa menyobjekt för att rensa brädet
+        MenuItem getGameRulesItem = new MenuItem("Get game rules");
 
+        // Lägg till händelsehanterare för att rensa brädet
+        clearBoardItem.setOnAction(e -> {
+            sudokuModel.clearAllEmptyCells(); // Anropa modellens metod för att rensa alla tomma celler
+            updateNumberTiles(); // Uppdatera brädet i vyn
+        });
 
         // Lägg till menyobjekt i filmenyn
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
@@ -113,8 +132,7 @@ public class ViewTest extends Application {
 
     private void initNumberTiles() {
         Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
-        SudokuModel sudokuModel = new SudokuModel();
-        int[][] array = sudokuModel.getBoardState();
+        int[][] array = sudokuModel.getBoardState(); // Hämta brädet från modellen
         Label tile;
 
         for (int row = 0; row < GRID_SIZE; row++) {
@@ -130,6 +148,32 @@ public class ViewTest extends Application {
                 tile.setAlignment(Pos.CENTER);
                 tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
                 numberTiles[row][col] = tile;
+
+                // Lägg till händelsehanterare för att klicka på rutorna
+                int finalRow = row; // För att undvika problem med scoping
+                int finalCol = col; // För att undvika problem med scoping
+                tile.setOnMouseClicked(e -> {
+                    if (selectedNumber != 0 && array[finalRow][finalCol] == 0) {
+                        // Om rutan är tom, fyll i det valda numret
+                        sudokuModel.updateCell(finalRow, finalCol, selectedNumber);
+                        updateNumberTiles(); // Uppdatera rutorna för att återspegla ändringen
+                    }
+                });
+            }
+        }
+    }
+
+    // Uppdatera UI efter att modellens bräde har ändrats
+    private void updateNumberTiles() {
+        int[][] boardState = sudokuModel.getBoardState(); // Hämta aktuellt tillstånd
+
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                if (boardState[row][col] == 0) {
+                    numberTiles[row][col].setText(""); // Sätt cellen som tom
+                } else {
+                    numberTiles[row][col].setText(String.valueOf(boardState[row][col])); // Uppdatera siffra
+                }
             }
         }
     }
@@ -137,8 +181,6 @@ public class ViewTest extends Application {
     private GridPane makeNumberPane() {
         GridPane root = new GridPane();
         root.setStyle("-fx-border-color: black; -fx-border-width: 1.0px; -fx-background-color: white;");
-
-
 
         for (int srow = 0; srow < SECTIONS_PER_ROW; srow++) {
             for (int scol = 0; scol < SECTIONS_PER_ROW; scol++) {

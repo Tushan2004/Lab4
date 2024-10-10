@@ -4,6 +4,14 @@ import model.*;
 
 public class SudokuController {
 
+    private SudokuModel model; // Referens till modellen (där datalogiken finns)
+    private SudokuView view;   // Referens till vyn (där UI-hantering sker)
+
+    public SudokuController(SudokuModel model, SudokuView view) {
+        this.model = model;
+        this.view = view;
+    }
+
     public void generateNewGame() {
 
     }
@@ -35,7 +43,8 @@ public class SudokuController {
 
     // 6. Rensa alla rutor (som från början var tomma)
     public void clearAllEmptyCells() {
-        // Implementera för att rensa alla tomma rutor
+        model.clearAllEmptyCells();  // Anropa modellens metod för att rensa tomma rutor
+        view.updateBoard();          // Uppdatera spelbrädet i vyn för att visa förändringarna
     }
 
     // 7. Kontrollera om hittills ifyllda siffror är korrekta
