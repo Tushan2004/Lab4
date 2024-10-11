@@ -1,8 +1,11 @@
 package view;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.scene.text.Font;
@@ -24,6 +27,8 @@ public class SudokuView extends Parent {
     private GridPane numberPane;
     private VBox leftButtons;
     private Label[][] numberTiles;
+    MenuItem clearBoardItem;
+    Button clearButton;
 
     public SudokuView(SudokuModel model) {
         this.model = model;
@@ -59,31 +64,41 @@ public class SudokuView extends Parent {
     private VBox createButtons() {
         VBox chooseNmr = new VBox(2); // 5 pixels between each button
         chooseNmr.setPadding(new Insets(10));
+        int number = 0;
 
         // Create buttons from 1 to 9
-        for (int i = 1; i <= 9; i++) {
-            Button button = new Button(String.valueOf(i));
-            chooseNmr.getChildren().add(button); // Add button to VBox
-            button.setPrefWidth(30);
-            button.setPrefHeight(30);
+        for (int i = 1; i <= 10; i++) {
+            if (i <= 9) {
+                Button button = new Button(String.valueOf(i));
+                chooseNmr.getChildren().add(button); // Add button to VBox
+                button.setPrefWidth(30);
+                button.setPrefHeight(30);
 
+                number = i; // Avoid scoping issues
+                int finalNumber = number;
+                button.setOnAction(e -> {
+                    selectedNumber = finalNumber; // Set the selected number
+                });
+            }
+                if (i == 10) {
+                    // Create and add clear button
+                    clearButton = new Button("C");
+                    chooseNmr.getChildren().add(clearButton);
+                    clearButton.setPrefWidth(30);
+                    clearButton.setPrefHeight(30);
+
+                    number = i; // Avoid scoping issues
+                    int finalNumber1 = number;
+                    clearButton.setOnAction(e -> {
+                        selectedNumber = finalNumber1; // Set the selected number
+                    });
+                }
+            }
             // Add event handler for each button
-            int number = i; // Avoid scoping issues
-            button.setOnAction(e -> {
-                selectedNumber = number; // Set the selected number
-            });
-        }
-
-        // Create and add clear button
-        Button clearButton = new Button("C");
-        chooseNmr.getChildren().add(clearButton);
-        clearButton.setPrefWidth(30);
-        clearButton.setPrefHeight(30);
-
         // Event handler for Clear button
-        clearButton.setOnAction(e -> {
+        /*clearButton.setOnAction(e -> {
             selectedNumber = 0; // Reset the selected number
-        });
+        });*/
 
         return chooseNmr;
     }
@@ -118,16 +133,14 @@ public class SudokuView extends Parent {
         MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
 
         Menu helpMenu = new Menu("Help");
-        MenuItem clearBoardItem = new MenuItem("Clear board"); // Create menu item to clear board
+        clearBoardItem = new MenuItem("Clear board"); // Create menu item to clear board
         MenuItem getGameRulesItem = new MenuItem("Get game rules");
 
         // Add event handler for clearing the board
-        clearBoardItem.setOnAction(e -> {
-            model.clearAllEmptyCells(); // Call model method to clear all empty cells
-            updateNumberTiles(); // Update the view
-        });
+        //clearBoardItem.setOnAction(e -> SudokuController.clearAllEmptyCells());
 
-        // Add menu items to menus
+
+            // Add menu items to menus
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
         gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
         helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
@@ -135,6 +148,33 @@ public class SudokuView extends Parent {
 
         return menuBar; // Return the created menu bar
     }
+
+    void addEventHandlers(SudokuController controller) {
+        EventHandler<MouseEvent> tileCLickHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                for(int row = 0; row < GRID_SIZE; row++) {
+                    for(int col = 0; col < GRID_SIZE; col++) {
+                        if(event.getSource() == numberTiles[row][col]) {
+                            // we got the row and column - now call the appropriate controller method, e.g.
+                            int finalRow = row;
+                            int finalCol = col;
+                            clearButton.setOnAction(e -> {
+                                model.updateCell(finalRow, finalCol,0); // Reset the selected number
+                                updateNumberTiles(); // Update the tiles to reflect the change
+                            });
+                            // then ...
+                            return;
+                        }
+                    }
+                }
+            }
+        };
+        clearBoardItem.setOnAction(e -> controller.clearAllEmptyCells());
+
+    }
+
+
 
     private void initNumberTiles() {
         Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
@@ -164,13 +204,17 @@ public class SudokuView extends Parent {
                         model.updateCell(finalRow, finalCol, selectedNumber);
                         updateNumberTiles(); // Update the tiles to reflect the change
                     }
+                    if (selectedNumber == 10) {
+                        model.updateCell(finalRow, finalCol, 0);
+                        updateNumberTiles();
+                    }
                 });
             }
         }
     }
 
     // Update UI after model board has changed
-    private void updateNumberTiles() {
+    void updateNumberTiles() {
         int[][] boardState = model.getBoardState(); // Get current state
 
         for (int row = 0; row < GRID_SIZE; row++) {

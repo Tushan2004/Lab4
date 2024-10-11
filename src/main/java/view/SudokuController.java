@@ -1,6 +1,10 @@
 package view;
 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import model.*;
+
+import javafx.event.ActionEvent;
 
 public class SudokuController {
 
@@ -10,6 +14,7 @@ public class SudokuController {
     public SudokuController(SudokuModel model, SudokuView view) {
         this.model = model;
         this.view = view;
+        this.view.addEventHandlers(this);
     }
 
     public void generateNewGame() {
@@ -43,8 +48,8 @@ public class SudokuController {
 
     // 6. Rensa alla rutor (som från början var tomma)
     public void clearAllEmptyCells() {
-        model.clearAllEmptyCells();  // Anropa modellens metod för att rensa tomma rutor
-        view.updateBoard();          // Uppdatera spelbrädet i vyn för att visa förändringarna
+        model.clearAllEmptyCells(); // Rensa alla tomma celler
+        view.updateNumberTiles();   // Uppdatera spelbrädet i vyn
     }
 
     // 7. Kontrollera om hittills ifyllda siffror är korrekta

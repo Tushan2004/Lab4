@@ -30,6 +30,11 @@ public class SudokuModel {
 
     // Metod för att uppdatera en cell med användarens inmatning
     public void updateCell(int row, int col, int value) {
+        if (value == 0) {
+            board[row][col].setUserValue(value);
+            return;
+        }
+
         // Kontrollera om värdet är giltigt (1-9) innan vi fortsätter
         if (value < 1 || value > 9) {
             return; // Om värdet är utanför intervallet, gör ingenting
