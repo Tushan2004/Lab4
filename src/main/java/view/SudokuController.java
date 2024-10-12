@@ -1,71 +1,78 @@
 package view;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import model.*;
-
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 public class SudokuController {
 
-    private SudokuModel model; // Referens till modellen (där datalogiken finns)
-    private SudokuView view;   // Referens till vyn (där UI-hantering sker)
+    private SudokuModel model; // Reference to the model (where data logic exists)
+    private SudokuView view;   // Reference to the view (where UI handling occurs)
 
     public SudokuController(SudokuModel model, SudokuView view) {
         this.model = model;
         this.view = view;
-        this.view.addEventHandlers(this);
+        this.view.addEventHandlers(this); // Add event handlers to the view
     }
 
+    // 1. Generate a new game with the selected difficulty level
     public void generateNewGame() {
-
+        model.initializeBoard(); // Initializes a new board
+        view.updateNumberTiles(); // Updates the UI with the new board
     }
 
-    // 1. Välja svårighetsnivå (lätt, medel eller svår) och generera en ny spelomgång
+    // 2. Choose difficulty level (easy, medium, hard) and generate a new game round
     public void chooseDifficulty(SudokuUtilities.SudokuLevel level) {
-        // Implementera för att välja svårighetsnivå och generera ett nytt spel
+        model.initializeBoard(); // Reinitialize the board
+        view.updateNumberTiles(); // Update the view with the board
     }
 
-    // 2. Spara ett oavslutat spel till fil, med val för placering och filnamn
+    // 3. Save an unfinished game to a file
     public void saveGameToFile(String filePath) {
-        // Implementera för att spara ett spel till fil
+        model.saveGameToFile(filePath); // Save the game to the selected file
     }
 
-    // 3. Välja en sparad fil och öppna spelet
+    // 4. Load a saved game from a file
     public void loadGameFromFile(String filePath) {
-        // Implementera för att öppna ett sparat spel från fil
+        model.loadGameFromFile(filePath); // Load the game from the selected file
+        view.updateNumberTiles(); // Update the view with the loaded game
     }
 
-    // 4. Fylla i en siffra, 1-9, i en ruta (som från början var tom)
+    // 5. Fill in a number (1-9) in a cell (which was initially empty)
     public void fillCell(int row, int col, int number) {
-        // Implementera för att fylla i en ruta med en siffra
+        if (model.isCellEditable(row, col)) { // Check if the cell is editable
+            model.updateCell(row, col, number); // Update the model
+            view.updateNumberTiles(); // Update the UI to show the new value
+        }
     }
 
-    // 5. Tömma en ruta (som från början var tom)
+    // 6. Clear a cell (which was initially empty)
     public void clearCell(int row, int col) {
-        // Implementera för att tömma en ruta
+        if (model.isCellEditable(row, col)) { // Check if the cell is editable
+            model.updateCell(row, col, 0); // Set the cell to empty (0)
+            view.updateNumberTiles(); // Update the UI
+        }
     }
 
-    // 6. Rensa alla rutor (som från början var tomma)
     public void clearAllEmptyCells() {
-        model.clearAllEmptyCells(); // Rensa alla tomma celler
-        view.updateNumberTiles();   // Uppdatera spelbrädet i vyn
+        model.clearAllEmptyCells(); // Clear all empty cells in the model
+        view.updateNumberTiles(); // Update view to reflect model changes
     }
 
-    // 7. Kontrollera om hittills ifyllda siffror är korrekta
+    // 8. Check if currently filled numbers are correct
     public boolean checkFilledNumbers() {
-        // Implementera för att kontrollera ifyllda siffror
-        return false; // Placeholder, returnera korrekt resultat senare
+        return model.checkFilledNumbers(); // Check if all filled numbers are correct
     }
 
-    // 8. Få kortfattad information om spelregler
+    // 9. Get a brief description of the game rules
     public String getGameRules() {
-        // Implementera för att returnera kortfattad spelinformation
-        return ""; // Placeholder, returnera regler senare
+        return "Fill in numbers from 1 to 9 in each row, column, and 3x3 section without repetitions."; // Simple rule description
     }
 
-    // 9. Få hjälp genom att en slumpvis vald ruta fylls i
+    // 10. Get help by filling a randomly selected cell with the correct solution
     public void getHint() {
-        // Implementera för att ge en ledtråd genom att fylla i en slumpvis ruta
-    }
+        model.provideHint(); // Provide a hint
+        view.updateNumberTiles(); // Update the UI to reflect the hint
+        }
 }
+

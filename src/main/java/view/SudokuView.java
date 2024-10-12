@@ -1,6 +1,5 @@
 package view;
 
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -11,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.SudokuModel;
+import model.SudokuUtilities;
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -29,6 +29,7 @@ public class SudokuView extends Parent {
     private Label[][] numberTiles;
     MenuItem clearBoardItem;
     Button clearButton;
+    Button hintButton;
 
     public SudokuView(SudokuModel model) {
         this.model = model;
@@ -80,30 +81,30 @@ public class SudokuView extends Parent {
                     selectedNumber = finalNumber; // Set the selected number
                 });
             }
-                if (i == 10) {
-                    // Create and add clear button
-                    clearButton = new Button("C");
-                    chooseNmr.getChildren().add(clearButton);
-                    clearButton.setPrefWidth(30);
-                    clearButton.setPrefHeight(30);
+            if (i == 10) {
+                // Create and add clear button
+                clearButton = new Button("C");
+                chooseNmr.getChildren().add(clearButton);
+                clearButton.setPrefWidth(30);
+                clearButton.setPrefHeight(30);
 
-                    number = i; // Avoid scoping issues
-                    int finalNumber1 = number;
-                    clearButton.setOnAction(e -> {
-                        selectedNumber = finalNumber1; // Set the selected number
-                    });
-                }
+                number = i; // Avoid scoping issues
+                int finalNumber1 = number;
+                clearButton.setOnAction(e -> {
+                    selectedNumber = finalNumber1; // Set the selected number
+                });
             }
-            // Add event handler for each button
+        }
+        // Add event handler for each button
         // Event handler for Clear button
-        /*clearButton.setOnAction(e -> {
+        clearButton.setOnAction(e -> {
             selectedNumber = 0; // Reset the selected number
-        });*/
+        });
 
         return chooseNmr;
     }
 
-    private VBox createLeftButtons() {
+    VBox createLeftButtons() {
         VBox leftSideButtons = new VBox(10);
         leftSideButtons.setPadding(new Insets(10));
 
@@ -114,7 +115,16 @@ public class SudokuView extends Parent {
         VBox.setVgrow(spacerBottom, Priority.ALWAYS); // Fill space below
 
         Button checkButton = new Button("Check");
-        Button hintButton = new Button("Hint");
+        hintButton = new Button("Hint");
+
+        // Add actions to the buttons
+        checkButton.setOnAction(e -> {
+            if (model.checkFilledNumbers()) {
+                showAlert("All numbers are correct!", Alert.AlertType.INFORMATION);
+            } else {
+                showAlert("There are incorrect numbers. Please check your entries.", Alert.AlertType.WARNING);
+            }
+        });
 
         leftSideButtons.getChildren().addAll(spacerTop, checkButton, hintButton, spacerBottom);
         return leftSideButtons;
@@ -136,11 +146,34 @@ public class SudokuView extends Parent {
         clearBoardItem = new MenuItem("Clear board"); // Create menu item to clear board
         MenuItem getGameRulesItem = new MenuItem("Get game rules");
 
+        // Add event handlers for menu items
+        loadGameItem.setOnAction(e -> { /* Implement loading logic */ });
+        saveGameItem.setOnAction(e -> { /* Implement saving logic */ });
+        exitItem.setOnAction(e -> System.exit(0));
+
+        //restartGameItem.setOnAction(e -> model.initializeBoard(model.getCurrentLevel())); // Restart game with current difficulty
+
+        selectDifficultyItem.setOnAction(e -> {
+            // Show a dialog to select difficulty
+            ChoiceDialog<SudokuUtilities.SudokuLevel> dialog = new ChoiceDialog<>(SudokuUtilities.SudokuLevel.EASY, SudokuUtilities.SudokuLevel.values());
+            dialog.setTitle("Select Difficulty");
+            dialog.setHeaderText("Choose a difficulty level:");
+            dialog.setContentText("Difficulty:");
+            dialog.showAndWait().ifPresent(level -> {
+                model.setDifficulty(level);
+                updateNumberTiles(); // Update the board for the new difficulty level
+            });
+        });
+
+        getGameRulesItem.setOnAction(e -> showAlert(model.getGameRules(), Alert.AlertType.INFORMATION));
+
         // Add event handler for clearing the board
-        //clearBoardItem.setOnAction(e -> SudokuController.clearAllEmptyCells());
+        //clearBoardItem.setOnAction(e -> {
+          //  model.clearAllEmptyCells(); // Clear all empty cells in the model
+            //updateNumberTiles(); // Update the UI
+       // });
 
-
-            // Add menu items to menus
+        // Add menu items to menus
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
         gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
         helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
@@ -150,20 +183,19 @@ public class SudokuView extends Parent {
     }
 
     void addEventHandlers(SudokuController controller) {
-        EventHandler<MouseEvent> tileCLickHandler = new EventHandler<MouseEvent>() {
+        EventHandler<MouseEvent> tileClickHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                for(int row = 0; row < GRID_SIZE; row++) {
-                    for(int col = 0; col < GRID_SIZE; col++) {
-                        if(event.getSource() == numberTiles[row][col]) {
-                            // we got the row and column - now call the appropriate controller method, e.g.
+                for (int row = 0; row < GRID_SIZE; row++) {
+                    for (int col = 0; col < GRID_SIZE; col++) {
+                        if (event.getSource() == numberTiles[row][col]) {
+                            // we got the row and column - now call the appropriate controller method
                             int finalRow = row;
                             int finalCol = col;
                             clearButton.setOnAction(e -> {
-                                model.updateCell(finalRow, finalCol,0); // Reset the selected number
+                                model.updateCell(finalRow, finalCol, 0); // Reset the selected number
                                 updateNumberTiles(); // Update the tiles to reflect the change
                             });
-                            // then ...
                             return;
                         }
                     }
@@ -171,10 +203,10 @@ public class SudokuView extends Parent {
             }
         };
         clearBoardItem.setOnAction(e -> controller.clearAllEmptyCells());
+        hintButton.setOnAction(e -> controller.getHint());
+
 
     }
-
-
 
     private void initNumberTiles() {
         Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
@@ -282,5 +314,12 @@ public class SudokuView extends Parent {
     // Return the game board (TilePane)
     public TilePane getGameBoard() {
         return gameBoard;
+    }
+
+    private void showAlert(String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(alertType == Alert.AlertType.INFORMATION ? "Information" : "Warning");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

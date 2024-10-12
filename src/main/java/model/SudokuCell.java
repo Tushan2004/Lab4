@@ -23,9 +23,17 @@ public class SudokuCell {
         this.userValue = value;
     }
 
+    // Ny metod för att hämta användarens inmatning
+    public int getUserValue() {
+        return userValue;
+    }
+
     // Kontrollera om användarens inmatning är korrekt
     public boolean isCorrect() {
         return userValue == solutionValue;
     }
-}
 
+    public int getSolutionValue() {
+        return solutionValue;
+    }
+}

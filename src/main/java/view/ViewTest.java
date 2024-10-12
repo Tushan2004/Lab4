@@ -14,7 +14,7 @@ public class ViewTest extends Application {
         SudokuView sudokuView = new SudokuView(sudokuModel);
         SudokuController sudokuController = new SudokuController(sudokuModel,sudokuView);
 
-        //sudokuView.addEventHandlers(sudokuController);
+        sudokuView.addEventHandlers(sudokuController);
 
         Scene scene = new Scene(sudokuView.getMainLayout(),495,400);
 
