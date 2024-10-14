@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.SudokuModel;
+import model.SudokuUtilities;
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -31,6 +32,8 @@ public class SudokuView extends Parent {
     private Button hintButton;
     private Button checkButton;
     private MenuItem getGameRulesItem;
+    MenuItem restartGameItem;
+    MenuItem selectDifficultyItem;
 
     // Konstruktor och layoutinitialisering
     public SudokuView(SudokuModel model) {
@@ -114,8 +117,8 @@ public class SudokuView extends Parent {
         MenuItem exitItem = new MenuItem("Exit");
 
         Menu gameMenu = new Menu("Game");
-        MenuItem restartGameItem = new MenuItem("Restart game");
-        MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
+        restartGameItem = new MenuItem("Restart game");
+        selectDifficultyItem = new MenuItem("Select difficulty");
 
         Menu helpMenu = new Menu("Help");
         clearBoardItem = new MenuItem("Clear board");
@@ -188,6 +191,8 @@ public class SudokuView extends Parent {
         hintButton.setOnAction(e -> controller.getHint());
         checkButton.setOnAction(e -> controller.checkFilledNumbers());
         getGameRulesItem.setOnAction(e -> controller.getGameRules());
+        restartGameItem.setOnAction(e -> controller.generateNewGame());
+        selectDifficultyItem.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.EASY));
     }
 
     // Hjälpmetoder

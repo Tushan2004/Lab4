@@ -11,13 +11,13 @@ import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 import model.SudokuModel;
 
-public class TilePaneNumbers extends Application {
+/*public class TilePaneNumbers extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Skapa ett Sudoku-spel
-        SudokuModel game = new SudokuModel();
-        game.initializeBoard();
-        int[][] array = game.getBoardState();
+        //SudokuModel game = new SudokuModel();
+        //game.initializeBoard();
+        //int[][] array = game.getBoardState();
 
         // Skapa en TilePane
         TilePane tilePane = new TilePane();
@@ -68,4 +68,4 @@ public class TilePaneNumbers extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-}
+}*/

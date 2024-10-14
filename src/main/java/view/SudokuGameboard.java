@@ -7,7 +7,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.SudokuModel;
 
-public class SudokuGameboard {
+/*public class SudokuGameboard {
 
     private static final int GRID_SIZE = 9;
     private static final int SECTION_SIZE = 3;
@@ -59,4 +59,4 @@ public class SudokuGameboard {
         }
         return root;
     }
-}
+}*/

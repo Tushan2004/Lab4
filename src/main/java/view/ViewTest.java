@@ -14,8 +14,6 @@ public class ViewTest extends Application {
         SudokuView sudokuView = new SudokuView(sudokuModel);
         SudokuController sudokuController = new SudokuController(sudokuModel,sudokuView);
 
-        sudokuView.addEventHandlers(sudokuController);
-
         Scene scene = new Scene(sudokuView.getMainLayout(),495,400);
 
         primaryStage.setTitle("Sudoku");
@@ -23,6 +21,8 @@ public class ViewTest extends Application {
         primaryStage.sizeToScene();
         primaryStage.setResizable(false);
         primaryStage.show();
+
+        sudokuView.addEventHandlers(sudokuController);
     }
 
     public static void main(String[] args) {

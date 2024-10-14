@@ -12,24 +12,23 @@ import java.util.Scanner;
 public class SudokuModel {
     private SudokuCell[][] board;  // 9x9 grid of SudokuCells
     private boolean[][] initialEmptyCells;  // Spårar vilka celler som var tomma vid spelets start
-    private SudokuUtilities.SudokuLevel currentLevel; // Nuvarande svårighetsnivå
+    public SudokuUtilities.SudokuLevel currentLevel; // Nuvarande svårighetsnivå
 
     public SudokuModel() {
         board = new SudokuCell[9][9];
         initialEmptyCells = new boolean[9][9]; // True om cellen var tom från början
         currentLevel = SudokuUtilities.SudokuLevel.EASY; // Standard svårighetsnivå
-        initializeBoard();
+        initializeBoard(SudokuUtilities.SudokuLevel.EASY);
     }
 
     // Initialiserar brädet från en genererad matris
-    public void initializeBoard() {
-        Random random = new Random();
-        int randomNumber = random.nextInt(3);
+    public void initializeBoard(SudokuUtilities.SudokuLevel level) {
+
         int[][][] matrix = null;
-        switch (randomNumber) {
-            case 0: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
-            case 1: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
-            case 2: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
+        switch (level) {
+            case EASY: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
+            case MEDIUM: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
+            case HARD: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
         }
 
 
@@ -45,6 +44,11 @@ public class SudokuModel {
                 initialEmptyCells[row][col] = (initialValue == 0);
             }
         }
+    }
+
+    public void initalizeNewBoard(SudokuUtilities.SudokuLevel level) {
+
+        initializeBoard(level);
     }
 
     // Kontrollera om en cell kan redigeras (om den var tom vid spelets start)
@@ -198,7 +202,7 @@ public class SudokuModel {
     // Ny metod för att ställa in svårighetsnivå
     public void setDifficulty(SudokuUtilities.SudokuLevel level) {
         currentLevel = level; // Spara den nya svårighetsnivån
-        initializeBoard(); // Generera en ny spelomgång
+        initializeBoard(level); // Generera en ny spelomgång
     }
 
     // Ny metod för att få spelregler
