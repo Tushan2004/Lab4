@@ -13,6 +13,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.SudokuModel;
 import model.SudokuUtilities;
+import javafx.application.Platform;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -243,7 +245,7 @@ public class SudokuView extends Parent {
         saveGameItem.setOnAction(e -> {
             controller.saveGameToFile((Stage) mainLayout.getScene().getWindow());
         });
-       // exitItem.setOnAction(e -> controller.);
+       exitItem.setOnAction(e -> Platform.exit());
     }
 
     // Hjälpmetoder
