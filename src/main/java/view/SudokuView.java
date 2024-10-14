@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
@@ -185,6 +186,14 @@ public class SudokuView extends Parent {
                 if (boardState[row][col] == 0) {
                     numberTiles[row][col].setText(""); // Set cell to empty
                 } else {
+                    if (model.board[row][col].getInitialValue() == 0){
+                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20)); // Ändra till önskat teckensnitt
+                        numberTiles[row][col].setTextFill(Color.RED); // Du kan även ändra färg om du vill
+                    } else {
+                        // Om initialvärdet inte är 0, använd ett annat teckensnitt eller standardteckensnittet
+                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20)); // Standard för fasta värden
+                        numberTiles[row][col].setTextFill(Color.BLACK); // Standardfärg för icke-redigerbara celler
+                    }
                     numberTiles[row][col].setText(String.valueOf(boardState[row][col])); // Update number
                 }
             }

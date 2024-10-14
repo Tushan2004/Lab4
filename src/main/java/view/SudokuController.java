@@ -20,14 +20,12 @@ public class SudokuController {
     // 1. Generate a new game with the selected difficulty level
     public void generateNewGame() {
         model.initializeBoard(model.currentLevel); // Initializes a new board
-        //view.initNumberTiles();
         view.updateNumberTiles(); // Updates the UI with the new board
     }
 
     // 2. Choose difficulty level (easy, medium, hard) and generate a new game round
     public void chooseDifficulty(SudokuUtilities.SudokuLevel level) {
         model.setDifficulty(level); // Reinitialize the board
-        //view.initNumberTiles();
         view.updateNumberTiles(); // Update the view with the board
     }
 
