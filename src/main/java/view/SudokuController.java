@@ -1,7 +1,10 @@
 package view;
 
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import model.*;
+
+import java.io.IOException;
 
 public class SudokuController {
 
@@ -17,31 +20,50 @@ public class SudokuController {
     // 1. Generate a new game with the selected difficulty level
     public void generateNewGame() {
         model.initializeBoard(model.currentLevel); // Initializes a new board
+        //view.initNumberTiles();
         view.updateNumberTiles(); // Updates the UI with the new board
     }
 
     // 2. Choose difficulty level (easy, medium, hard) and generate a new game round
     public void chooseDifficulty(SudokuUtilities.SudokuLevel level) {
-        model.initializeNewBoard(level); // Reinitialize the board
+        model.setDifficulty(level); // Reinitialize the board
+        //view.initNumberTiles();
         view.updateNumberTiles(); // Update the view with the board
     }
 
     // 3. Save an unfinished game to a file
-    public void saveGameToFile(String filePath) {
-        model.saveGameToFile(filePath); // Save the game to the selected file
+    public void saveGameToFile(Stage stage) {
+        // Kalla på vyns metod för att spara spelet, som hanterar filväljaren
+        String filePath = view.saveGame(stage); // Denna metod ska returnera sökvägen till den sparade filen
+        if (filePath != null) { // Kontrollera att filen valdes
+            model.saveGameToFile(filePath, model); // Anropa modellens metod för att spara spelet
+        }
     }
 
+
     // 4. Load a saved game from a file
-    public void loadGameFromFile(String filePath) {
-        model.loadGameFromFile(filePath); // Load the game from the selected file
-        view.updateNumberTiles(); // Update the view with the loaded game
+    public void loadGameFromFile(Stage stage) {
+        // Kalla på vyns metod för att ladda spelet, som hanterar filväljaren
+        String filePath = view.loadGame(stage); // Denna metod ska returnera sökvägen till den laddade filen
+        if (filePath != null) { // Kontrollera att filen valdes
+            model.loadGame(filePath); // Anropa modellens metod för att ladda spelet
+            view.updateNumberTiles(); // Uppdatera vyn med den laddade spelstatusen
+        }
     }
+
 
     // 5. Fill in a number (1-9) in a cell (which was initially empty)
     public void fillCell(int row, int col, int number) {
         if (model.isCellEditable(row, col)) { // Check if the cell is editable
             model.updateCell(row, col, number); // Update the model
             view.updateNumberTiles(); // Update the UI to show the new value
+            if (model.isBoardFilled()) {
+                if (model.isDone()) {
+                    view.showAlert("Congratulations!", Alert.AlertType.INFORMATION);
+                } else {
+                    view.showAlert("Board is not filled with correct values", Alert.AlertType.WARNING);
+                }
+            }
         }
     }
 
@@ -53,7 +75,8 @@ public class SudokuController {
         }
     }
 
-    public void clearAllEmptyCells() {
+    // 7. Clear
+    public void clearAllFilledCells() {
         model.clearAllEmptyCells(); // Clear all empty cells in the model
         view.updateNumberTiles(); // Update view to reflect model changes
     }
@@ -76,6 +99,13 @@ public class SudokuController {
     public void getHint() {
         model.provideHint(); // Provide a hint
         view.updateNumberTiles(); // Update the UI to reflect the hint
+        if (model.isBoardFilled()) {
+            if (model.isDone()) {
+                view.showAlert("Congratulations!", Alert.AlertType.INFORMATION);
+            } else {
+                view.showAlert("Board is not filled with correct values", Alert.AlertType.WARNING);
+            }
+        }
         }
 }
 

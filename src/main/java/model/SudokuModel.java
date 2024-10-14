@@ -1,16 +1,15 @@
 package model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import javafx.scene.control.Alert;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-public class SudokuModel {
-    private SudokuCell[][] board;  // 9x9 grid of SudokuCells
+public class SudokuModel implements Serializable{
+    public SudokuCell[][] board;  // 9x9 grid of SudokuCells
     private boolean[][] initialEmptyCells;  // Spårar vilka celler som var tomma vid spelets start
     public SudokuUtilities.SudokuLevel currentLevel; // Nuvarande svårighetsnivå
     int[][][] matrix;
@@ -56,10 +55,6 @@ public class SudokuModel {
         }
     }
 
-    public void initializeNewBoard(SudokuUtilities.SudokuLevel level) {
-        initializeBoard(level);
-    }
-
     // Kontrollera om en cell kan redigeras (om den var tom vid spelets start)
     public boolean isCellEditable(int row, int col) {
         return initialEmptyCells[row][col];
@@ -72,8 +67,7 @@ public class SudokuModel {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 if (board[row][col].getUserValue() != 0) {
-                    value = board[row][col].getUserValue();
-                    if (!(value == board[row][col].getSolutionValue())) {
+                    if (!(board[row][col].isCorrect())) {
                         return false;
                     }
                 }
@@ -83,34 +77,47 @@ public class SudokuModel {
     }
 
     // Spara ett oavslutat spel till fil
-    public void saveGameToFile(String filePath) {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            for (int row = 0; row < 9; row++) {
-                for (int col = 0; col < 9; col++) {
-                    writer.write(board[row][col].getUserValue() + " ");
-                }
-                writer.write("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void saveGameToFile(String fileName, SudokuModel model) {
+        File file = new File(fileName);
+        try {
+            SudokuIO.serializeToFile(file, this); // Serialisera modellen till fil
+            System.out.println("Game saved successfully to " + file.getAbsolutePath());
+        } catch (IOException ex) {
+            System.out.println("Failed to save game: " + ex.getMessage());
         }
     }
 
     // Ladda ett sparat spel från fil
-    public void loadGameFromFile(String filePath) {
-        try (Scanner scanner = new Scanner(new File(filePath))) {
-            for (int row = 0; row < 9; row++) {
-                for (int col = 0; col < 9; col++) {
-                    if (scanner.hasNextInt()) {
-                        int value = scanner.nextInt();
-                        board[row][col].setUserValue(value);
-                    }
-                }
+    public void loadGame(String filepath) {
+        File file = new File(filepath);
+
+        if (file.exists()) {
+            try {
+                SudokuModel loadedModel = SudokuIO.deSerializeFromFile(file); // Deserialize model
+                this.updateFrom(loadedModel); // Update current model's state from loaded model
+                //updateNumberTiles(); // Update the UI based on the loaded model
+                //showAlert("Game loaded successfully from " + SAVE_FILE + "!", Alert.AlertType.INFORMATION);
+            } catch (IOException | ClassNotFoundException ex) {
+                //showAlert("Failed to load game: " + ex.getMessage(), Alert.AlertType.ERROR);
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } else {
+            //showAlert("No saved game found in " + SAVE_FILE + ".", Alert.AlertType.WARNING);
         }
     }
+
+
+    public void updateFrom(SudokuModel otherModel) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.board[row][col].setInitialValue(otherModel.board[row][col].getInitialValue());
+                this.board[row][col].setSolutionValue(otherModel.board[row][col].getSolutionValue());
+                this.board[row][col].setVisible(otherModel.board[row][col].isVisible());
+                this.board[row][col].setUserValue(otherModel.board[row][col].getUserValue()); // Kopiera userValue
+            }
+        }
+        this.currentLevel = otherModel.currentLevel;  // Update the difficulty level
+    }
+
 
     // Rensar alla celler som var tomma vid spelets start
     public void clearAllEmptyCells() {
@@ -138,16 +145,16 @@ public class SudokuModel {
 
     // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
     public void updateCell(int row, int col, int value) {
+
         if (value == 0) {
-            board[row][col].setUserValue(value);
-            return;
+            board[row][col].setUserValue(0);
         }
 
         // Kontrollera om värdet är giltigt (1-9) innan vi fortsätter
         if (value < 1 || value > 9) {
             return; // Om värdet är utanför intervallet, gör ingenting
         }
-
+/*
         // Kontrollera om värdet redan finns i den 3x3-sektionen
         if (isValueInSection(row, col, value)) {
             return; // Om värdet redan finns i sektionen, gör ingenting
@@ -161,11 +168,13 @@ public class SudokuModel {
         // Kontrollera om värdet redan finns i samma kolumn
         if (isValueInColumn(col, value)) {
             return; // Om värdet redan finns i kolumnen, gör ingenting
-        }
+        }*/
 
         board[row][col].setUserValue(value); // Sätt användarens värde
+        //isDone();
     }
 
+    /*
     // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
     private boolean isValueInSection(int row, int col, int value) {
         // Hitta vilken sektion vi befinner oss i
@@ -201,7 +210,7 @@ public class SudokuModel {
             }
         }
         return false; // Om värdet inte finns, returnera false
-    }
+    }*/
 
     // Ny metod för att hämta lösningsvärdet för en viss cell
     public int getSolutionValue(int row, int col) {
@@ -228,7 +237,7 @@ public class SudokuModel {
         // Samla alla tomma celler
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                if (initialEmptyCells[row][col]) {
+                if (board[row][col].getDisplayValue() == 0) {
                     emptyCells.add(new int[]{row, col});
                 }
             }
@@ -242,5 +251,30 @@ public class SudokuModel {
             int solutionValue = getSolutionValue(row, col);
             updateCell(row, col, solutionValue); // Fyll i cellen med lösningsvärdet
         }
+    }
+
+    public boolean isBoardFilled() {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col].getDisplayValue() == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean isDone() {
+
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (!(board[row][col].isCorrect())) {
+                    System.out.println("fel");
+                    return false;
+                }
+            }
+        }
+        System.out.println("klar");
+        return true;
     }
 }

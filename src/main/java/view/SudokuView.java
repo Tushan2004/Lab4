@@ -9,8 +9,13 @@ import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import model.SudokuModel;
 import model.SudokuUtilities;
+
+import java.io.File;
+import java.io.IOException;
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -18,7 +23,7 @@ public class SudokuView extends Parent {
     private static final int SECTIONS_PER_ROW = 3;
 
     private SudokuModel model;
-    private TilePane gameBoard;
+    //private TilePane gameBoard;
     private int selectedNumber;
 
     // GUI elements
@@ -32,22 +37,54 @@ public class SudokuView extends Parent {
     private Button hintButton;
     private Button checkButton;
     private MenuItem getGameRulesItem;
-    MenuItem restartGameItem;
-    Menu selectDifficultyMenu;
-    MenuItem easy, medium, hard;
+    private MenuItem newGame;
+    private Menu selectDifficultyMenu;
+    private MenuItem easy, medium, hard;
+    private MenuItem loadGameItem, saveGameItem, exitItem;
 
     // Konstruktor och layoutinitialisering
     public SudokuView(SudokuModel model) {
         this.model = model;
         this.numberTiles = new Label[GRID_SIZE][GRID_SIZE]; // Initialize number tiles
-        this.gameBoard = new TilePane();
-        this.gameBoard.setPrefColumns(9);
-        this.gameBoard.setMaxWidth(270); // Use 9 columns for the Sudoku board
+        //this.gameBoard = new TilePane();
+        //this.gameBoard.setPrefColumns(9);
+        //this.gameBoard.setMaxWidth(270); // Use 9 columns for the Sudoku board
 
         initLayout(); // Initialize layout components
     }
 
-    private void initLayout() {
+    public String saveGame(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Spara Sudoku Spel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
+
+        // Visa dialogen för att välja var filen ska sparas
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if (!file.getName().endsWith(".sudoku")) {
+                file = new File(file.getAbsolutePath() + ".sudoku");
+            }
+            return file.getAbsolutePath(); // Returnera sökvägen till filen
+        }
+        return null; // Om ingen fil valdes
+    }
+
+    public String loadGame(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Ladda Sudoku Spel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
+
+        // Visa dialogen för att välja fil
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            return file.getAbsolutePath(); // Returnera sökvägen till filen
+        }
+        return null; // Om ingen fil valdes
+    }
+
+
+
+    void initLayout() {
         initNumberTiles(); // Initialize number tiles
         numberPane = makeNumberPane(); // Create number pane
         numberPane.setPrefWidth(100); // Adjust to appropriate size
@@ -113,12 +150,12 @@ public class SudokuView extends Parent {
         MenuBar menuBar = new MenuBar();
 
         Menu fileMenu = new Menu("File");
-        MenuItem loadGameItem = new MenuItem("Load game");
-        MenuItem saveGameItem = new MenuItem("Save game");
-        MenuItem exitItem = new MenuItem("Exit");
+        loadGameItem = new MenuItem("Load game");
+        saveGameItem = new MenuItem("Save game");
+        exitItem = new MenuItem("Exit");
 
         Menu gameMenu = new Menu("Game");
-        restartGameItem = new MenuItem("Restart game");
+        newGame = new MenuItem("New game");
         selectDifficultyMenu = new Menu("Select difficulty");
         easy = new MenuItem("Easy");
         medium = new MenuItem("Medium");
@@ -129,7 +166,7 @@ public class SudokuView extends Parent {
         getGameRulesItem = new MenuItem("Get game rules");
 
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
-        gameMenu.getItems().addAll(restartGameItem, selectDifficultyMenu);
+        gameMenu.getItems().addAll(newGame, selectDifficultyMenu);
         helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
         menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu);
         selectDifficultyMenu.getItems().addAll(easy, medium, hard);
@@ -192,14 +229,21 @@ public class SudokuView extends Parent {
             }
         }
 
-        clearBoardItem.setOnAction(e -> controller.clearAllEmptyCells());
+        clearBoardItem.setOnAction(e -> controller.clearAllFilledCells());
         hintButton.setOnAction(e -> controller.getHint());
         checkButton.setOnAction(e -> controller.checkFilledNumbers());
         getGameRulesItem.setOnAction(e -> controller.getGameRules());
-        restartGameItem.setOnAction(e -> controller.generateNewGame());
+        newGame.setOnAction(e -> controller.generateNewGame());
         easy.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.EASY));
         medium.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.MEDIUM));
         hard.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.HARD));
+        loadGameItem.setOnAction(e -> {
+            controller.loadGameFromFile((Stage) mainLayout.getScene().getWindow());
+        });
+        saveGameItem.setOnAction(e -> {
+            controller.saveGameToFile((Stage) mainLayout.getScene().getWindow());
+        });
+       // exitItem.setOnAction(e -> controller.);
     }
 
     // Hjälpmetoder
@@ -212,7 +256,8 @@ public class SudokuView extends Parent {
 
     // Interna layoutmetoder
     private void initNumberTiles() {
-        Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
+        Font font = Font.font("Monospaced", FontWeight.EXTRA_BOLD, 20);
+        Font font1 = Font.font("Monospaced", FontWeight.LIGHT, 20);
         int[][] array = model.getBoardState(); // Get board from model
 
         for (int row = 0; row < GRID_SIZE; row++) {
@@ -252,9 +297,9 @@ public class SudokuView extends Parent {
         return mainLayout;
     }
 
-    TilePane getGameBoard() {
-        return gameBoard;
-    }
+    //TilePane getGameBoard() {
+    //  return gameBoard;
+    //}
 
     MenuBar getMenuBar() {
         return menuBar;
