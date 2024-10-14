@@ -33,7 +33,8 @@ public class SudokuView extends Parent {
     private Button checkButton;
     private MenuItem getGameRulesItem;
     MenuItem restartGameItem;
-    MenuItem selectDifficultyItem;
+    Menu selectDifficultyMenu;
+    MenuItem easy, medium, hard;
 
     // Konstruktor och layoutinitialisering
     public SudokuView(SudokuModel model) {
@@ -118,16 +119,20 @@ public class SudokuView extends Parent {
 
         Menu gameMenu = new Menu("Game");
         restartGameItem = new MenuItem("Restart game");
-        selectDifficultyItem = new MenuItem("Select difficulty");
+        selectDifficultyMenu = new Menu("Select difficulty");
+        easy = new MenuItem("Easy");
+        medium = new MenuItem("Medium");
+        hard = new MenuItem("Hard");
 
         Menu helpMenu = new Menu("Help");
         clearBoardItem = new MenuItem("Clear board");
         getGameRulesItem = new MenuItem("Get game rules");
 
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
-        gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
+        gameMenu.getItems().addAll(restartGameItem, selectDifficultyMenu);
         helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
         menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu);
+        selectDifficultyMenu.getItems().addAll(easy, medium, hard);
 
         return menuBar;
     }
@@ -192,7 +197,9 @@ public class SudokuView extends Parent {
         checkButton.setOnAction(e -> controller.checkFilledNumbers());
         getGameRulesItem.setOnAction(e -> controller.getGameRules());
         restartGameItem.setOnAction(e -> controller.generateNewGame());
-        selectDifficultyItem.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.EASY));
+        easy.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.EASY));
+        medium.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.MEDIUM));
+        hard.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.HARD));
     }
 
     // Hjälpmetoder

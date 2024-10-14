@@ -13,22 +13,32 @@ public class SudokuModel {
     private SudokuCell[][] board;  // 9x9 grid of SudokuCells
     private boolean[][] initialEmptyCells;  // Spårar vilka celler som var tomma vid spelets start
     public SudokuUtilities.SudokuLevel currentLevel; // Nuvarande svårighetsnivå
+    int[][][] matrix;
 
     public SudokuModel() {
         board = new SudokuCell[9][9];
         initialEmptyCells = new boolean[9][9]; // True om cellen var tom från början
-        currentLevel = SudokuUtilities.SudokuLevel.EASY; // Standard svårighetsnivå
-        initializeBoard(SudokuUtilities.SudokuLevel.EASY);
+        currentLevel = SudokuUtilities.SudokuLevel.EASY;// Standard svårighetsnivå
+        matrix = null;
+        initializeBoard(currentLevel);
     }
 
     // Initialiserar brädet från en genererad matris
     public void initializeBoard(SudokuUtilities.SudokuLevel level) {
 
-        int[][][] matrix = null;
         switch (level) {
-            case EASY: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
-            case MEDIUM: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
-            case HARD: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
+            case EASY:
+                matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
+                currentLevel = SudokuUtilities.SudokuLevel.EASY;
+                break;  // Avbryt efter att ha tilldelat matris för EASY
+            case MEDIUM:
+                matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
+                currentLevel = SudokuUtilities.SudokuLevel.MEDIUM;
+                break;  // Avbryt efter att ha tilldelat matris för MEDIUM
+            case HARD:
+                matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
+                currentLevel = SudokuUtilities.SudokuLevel.HARD;
+                break;  // Avbryt efter att ha tilldelat matris för HARD
         }
 
 
@@ -46,8 +56,7 @@ public class SudokuModel {
         }
     }
 
-    public void initalizeNewBoard(SudokuUtilities.SudokuLevel level) {
-
+    public void initializeNewBoard(SudokuUtilities.SudokuLevel level) {
         initializeBoard(level);
     }
 

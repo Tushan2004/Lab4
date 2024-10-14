@@ -2,8 +2,6 @@ package view;
 
 import javafx.scene.control.Alert;
 import model.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 
 public class SudokuController {
 
@@ -24,7 +22,7 @@ public class SudokuController {
 
     // 2. Choose difficulty level (easy, medium, hard) and generate a new game round
     public void chooseDifficulty(SudokuUtilities.SudokuLevel level) {
-        model.initalizeNewBoard(level); // Reinitialize the board
+        model.initializeNewBoard(level); // Reinitialize the board
         view.updateNumberTiles(); // Update the view with the board
     }
 
