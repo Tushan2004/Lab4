@@ -10,7 +10,6 @@ import javafx.geometry.Pos;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.SudokuModel;
-import model.SudokuUtilities;
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -18,7 +17,7 @@ public class SudokuView extends Parent {
     private static final int SECTIONS_PER_ROW = 3;
 
     private SudokuModel model;
-    private TilePane gameBoard; // TilePane for the game cells
+    private TilePane gameBoard;
     private int selectedNumber;
 
     // GUI elements
@@ -27,10 +26,13 @@ public class SudokuView extends Parent {
     private GridPane numberPane;
     private VBox leftButtons;
     private Label[][] numberTiles;
-    MenuItem clearBoardItem;
-    Button clearButton;
-    Button hintButton;
+    private MenuItem clearBoardItem;
+    private Button clearButton;
+    private Button hintButton;
+    private Button checkButton;
+    private MenuItem getGameRulesItem;
 
+    // Konstruktor och layoutinitialisering
     public SudokuView(SudokuModel model) {
         this.model = model;
         this.numberTiles = new Label[GRID_SIZE][GRID_SIZE]; // Initialize number tiles
@@ -46,94 +48,67 @@ public class SudokuView extends Parent {
         numberPane = makeNumberPane(); // Create number pane
         numberPane.setPrefWidth(100); // Adjust to appropriate size
 
-        // Create buttons
-        VBox numberSelector = createButtons(); // Create number selection buttons
+        VBox numberSelector = createNmrButtons(); // Create number selection buttons
         leftButtons = createLeftButtons(); // Create left side buttons
 
-        // Create the root layout
         BorderPane root = new BorderPane();
         root.setLeft(leftButtons);
         root.setCenter(numberPane);
         root.setRight(numberSelector);
         root.setPadding(new Insets(10));
 
-        // Create the menu bar
-        menuBar = createMenuBar();
+        menuBar = createMenuBar(); // Create the menu bar
         mainLayout = new VBox(menuBar, root); // Add menu bar to layout
     }
 
-    private VBox createButtons() {
+    // GUI-komponentuppbyggnad
+    private VBox createNmrButtons() {
         VBox chooseNmr = new VBox(2); // 5 pixels between each button
         chooseNmr.setPadding(new Insets(10));
-        int number = 0;
 
-        // Create buttons from 1 to 9
         for (int i = 1; i <= 10; i++) {
             if (i <= 9) {
                 Button button = new Button(String.valueOf(i));
-                chooseNmr.getChildren().add(button); // Add button to VBox
+                chooseNmr.getChildren().add(button);
                 button.setPrefWidth(30);
                 button.setPrefHeight(30);
 
-                number = i; // Avoid scoping issues
-                int finalNumber = number;
+                int finalNumber = i;
                 button.setOnAction(e -> {
                     selectedNumber = finalNumber; // Set the selected number
                 });
             }
             if (i == 10) {
-                // Create and add clear button
                 clearButton = new Button("C");
                 chooseNmr.getChildren().add(clearButton);
                 clearButton.setPrefWidth(30);
                 clearButton.setPrefHeight(30);
-
-                number = i; // Avoid scoping issues
-                int finalNumber1 = number;
-                clearButton.setOnAction(e -> {
-                    selectedNumber = finalNumber1; // Set the selected number
-                });
+                clearButton.setOnAction(e -> selectedNumber = 0); // Reset selected number
             }
         }
-        // Add event handler for each button
-        // Event handler for Clear button
-        clearButton.setOnAction(e -> {
-            selectedNumber = 0; // Reset the selected number
-        });
-
         return chooseNmr;
     }
 
-    VBox createLeftButtons() {
+    private VBox createLeftButtons() {
         VBox leftSideButtons = new VBox(10);
         leftSideButtons.setPadding(new Insets(10));
 
-        // Create a spacer for vertical alignment
         Region spacerTop = new Region();
         Region spacerBottom = new Region();
-        VBox.setVgrow(spacerTop, Priority.ALWAYS); // Fill space above
-        VBox.setVgrow(spacerBottom, Priority.ALWAYS); // Fill space below
+        VBox.setVgrow(spacerTop, Priority.ALWAYS);
+        VBox.setVgrow(spacerBottom, Priority.ALWAYS);
 
-        Button checkButton = new Button("Check");
+        checkButton = new Button("Check");
         hintButton = new Button("Hint");
-
-        // Add actions to the buttons
-        checkButton.setOnAction(e -> {
-            if (model.checkFilledNumbers()) {
-                showAlert("All numbers are correct!", Alert.AlertType.INFORMATION);
-            } else {
-                showAlert("There are incorrect numbers. Please check your entries.", Alert.AlertType.WARNING);
-            }
-        });
 
         leftSideButtons.getChildren().addAll(spacerTop, checkButton, hintButton, spacerBottom);
         return leftSideButtons;
     }
 
     private MenuBar createMenuBar() {
-        MenuBar menuBar = new MenuBar(); // Create a menu bar
+        MenuBar menuBar = new MenuBar();
 
-        Menu fileMenu = new Menu("File"); // Create a file menu
+        Menu fileMenu = new Menu("File");
         MenuItem loadGameItem = new MenuItem("Load game");
         MenuItem saveGameItem = new MenuItem("Save game");
         MenuItem exitItem = new MenuItem("Exit");
@@ -143,109 +118,18 @@ public class SudokuView extends Parent {
         MenuItem selectDifficultyItem = new MenuItem("Select difficulty");
 
         Menu helpMenu = new Menu("Help");
-        clearBoardItem = new MenuItem("Clear board"); // Create menu item to clear board
-        MenuItem getGameRulesItem = new MenuItem("Get game rules");
+        clearBoardItem = new MenuItem("Clear board");
+        getGameRulesItem = new MenuItem("Get game rules");
 
-        // Add event handlers for menu items
-        loadGameItem.setOnAction(e -> { /* Implement loading logic */ });
-        saveGameItem.setOnAction(e -> { /* Implement saving logic */ });
-        exitItem.setOnAction(e -> System.exit(0));
-
-        //restartGameItem.setOnAction(e -> model.initializeBoard(model.getCurrentLevel())); // Restart game with current difficulty
-
-        selectDifficultyItem.setOnAction(e -> {
-            // Show a dialog to select difficulty
-            ChoiceDialog<SudokuUtilities.SudokuLevel> dialog = new ChoiceDialog<>(SudokuUtilities.SudokuLevel.EASY, SudokuUtilities.SudokuLevel.values());
-            dialog.setTitle("Select Difficulty");
-            dialog.setHeaderText("Choose a difficulty level:");
-            dialog.setContentText("Difficulty:");
-            dialog.showAndWait().ifPresent(level -> {
-                model.setDifficulty(level);
-                updateNumberTiles(); // Update the board for the new difficulty level
-            });
-        });
-
-        getGameRulesItem.setOnAction(e -> showAlert(model.getGameRules(), Alert.AlertType.INFORMATION));
-
-        // Add event handler for clearing the board
-        //clearBoardItem.setOnAction(e -> {
-          //  model.clearAllEmptyCells(); // Clear all empty cells in the model
-            //updateNumberTiles(); // Update the UI
-       // });
-
-        // Add menu items to menus
         fileMenu.getItems().addAll(loadGameItem, saveGameItem, exitItem);
         gameMenu.getItems().addAll(restartGameItem, selectDifficultyItem);
         helpMenu.getItems().addAll(clearBoardItem, getGameRulesItem);
-        menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu); // Add menus to menu bar
+        menuBar.getMenus().addAll(fileMenu, gameMenu, helpMenu);
 
-        return menuBar; // Return the created menu bar
+        return menuBar;
     }
 
-    void addEventHandlers(SudokuController controller) {
-        EventHandler<MouseEvent> tileClickHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                for (int row = 0; row < GRID_SIZE; row++) {
-                    for (int col = 0; col < GRID_SIZE; col++) {
-                        if (event.getSource() == numberTiles[row][col]) {
-                            // we got the row and column - now call the appropriate controller method
-                            int finalRow = row;
-                            int finalCol = col;
-                            clearButton.setOnAction(e -> {
-                                model.updateCell(finalRow, finalCol, 0); // Reset the selected number
-                                updateNumberTiles(); // Update the tiles to reflect the change
-                            });
-                            return;
-                        }
-                    }
-                }
-            }
-        };
-        clearBoardItem.setOnAction(e -> controller.clearAllEmptyCells());
-        hintButton.setOnAction(e -> controller.getHint());
-
-
-    }
-
-    private void initNumberTiles() {
-        Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
-        int[][] array = model.getBoardState(); // Get board from model
-        Label tile;
-
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
-                if (array[row][col] == 0) {
-                    tile = new Label(); // Create an empty label
-                } else {
-                    tile = new Label(String.valueOf(array[row][col])); // Create label for each number
-                }
-                tile.setPrefWidth(50);
-                tile.setPrefHeight(50);
-                tile.setFont(font);
-                tile.setAlignment(Pos.CENTER);
-                tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
-                numberTiles[row][col] = tile;
-
-                // Add event handler for clicking on the tiles
-                int finalRow = row; // To avoid scoping issues
-                int finalCol = col; // To avoid scoping issues
-                tile.setOnMouseClicked(e -> {
-                    if (selectedNumber != 0 && array[finalRow][finalCol] == 0) {
-                        // If the tile is empty, fill it with the selected number
-                        model.updateCell(finalRow, finalCol, selectedNumber);
-                        updateNumberTiles(); // Update the tiles to reflect the change
-                    }
-                    if (selectedNumber == 10) {
-                        model.updateCell(finalRow, finalCol, 0);
-                        updateNumberTiles();
-                    }
-                });
-            }
-        }
-    }
-
-    // Update UI after model board has changed
+    // Modell- och layoutuppdatering
     void updateNumberTiles() {
         int[][] boardState = model.getBoardState(); // Get current state
 
@@ -260,6 +144,78 @@ public class SudokuView extends Parent {
         }
     }
 
+    /*
+    void updateBoard() {
+        int[][] currentBoard = model.getBoardState(); // Get current board from model
+        gameBoard.getChildren().clear(); // Clear old cells
+
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                Label cellLabel = new Label(currentBoard[row][col] == 0 ? "" : String.valueOf(currentBoard[row][col]));
+                cellLabel.setPrefWidth(30);
+                cellLabel.setPrefHeight(30);
+                cellLabel.setAlignment(Pos.CENTER);
+                cellLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
+                gameBoard.getChildren().add(cellLabel);
+            }
+        }
+    }*/
+
+    // Händelsehantering
+    void addEventHandlers(SudokuController controller) {
+        EventHandler<MouseEvent> tileClickHandler = event -> {
+            for (int row = 0; row < GRID_SIZE; row++) {
+                for (int col = 0; col < GRID_SIZE; col++) {
+                    if (event.getSource() == numberTiles[row][col]) {
+                        if (selectedNumber == 10) {
+                            controller.clearCell(row, col);
+                        } else {
+                            controller.fillCell(row, col, selectedNumber);
+                        }
+                        return;
+                    }
+                }
+            }
+        };
+
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                numberTiles[row][col].setOnMouseClicked(tileClickHandler);
+            }
+        }
+
+        clearBoardItem.setOnAction(e -> controller.clearAllEmptyCells());
+        hintButton.setOnAction(e -> controller.getHint());
+        checkButton.setOnAction(e -> controller.checkFilledNumbers());
+        getGameRulesItem.setOnAction(e -> controller.getGameRules());
+    }
+
+    // Hjälpmetoder
+    void showAlert(String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(alertType == Alert.AlertType.INFORMATION ? "Information" : "Warning");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Interna layoutmetoder
+    private void initNumberTiles() {
+        Font font = Font.font("Monospaced", FontWeight.NORMAL, 20);
+        int[][] array = model.getBoardState(); // Get board from model
+
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                Label tile = new Label(array[row][col] == 0 ? "" : String.valueOf(array[row][col]));
+                tile.setPrefWidth(50);
+                tile.setPrefHeight(50);
+                tile.setFont(font);
+                tile.setAlignment(Pos.CENTER);
+                tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
+                numberTiles[row][col] = tile;
+            }
+        }
+    }
+
     private GridPane makeNumberPane() {
         GridPane root = new GridPane();
         root.setStyle("-fx-border-color: black; -fx-border-width: 1.0px; -fx-background-color: white;");
@@ -268,7 +224,6 @@ public class SudokuView extends Parent {
             for (int scol = 0; scol < SECTIONS_PER_ROW; scol++) {
                 GridPane section = new GridPane();
                 section.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
-
                 for (int row = 0; row < SECTION_SIZE; row++) {
                     for (int col = 0; col < SECTION_SIZE; col++) {
                         section.add(numberTiles[srow * SECTION_SIZE + row][scol * SECTION_SIZE + col], col, row);
@@ -280,46 +235,16 @@ public class SudokuView extends Parent {
         return root;
     }
 
-    // Updates the game board with current data from the model
-    public void updateBoard() {
-        int[][] currentBoard = model.getBoardState(); // Get current board from model
-
-        gameBoard.getChildren().clear(); // Clear old cells
-
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
-                Label cellLabel;
-
-                if (currentBoard[row][col] == 0) {
-                    cellLabel = new Label("");  // Empty cell if value is 0
-                } else {
-                    cellLabel = new Label(String.valueOf(currentBoard[row][col])); // Show number
-                }
-
-                cellLabel.setPrefWidth(30);
-                cellLabel.setPrefHeight(30);
-                cellLabel.setAlignment(Pos.CENTER);  // Center text
-                cellLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
-
-                gameBoard.getChildren().add(cellLabel); // Add cell to the game
-            }
-        }
-    }
-
-    // Returns the main visual component (VBox)
-    public VBox getMainLayout() {
+    // Getters för layout och spelkomponenter
+    VBox getMainLayout() {
         return mainLayout;
     }
 
-    // Return the game board (TilePane)
-    public TilePane getGameBoard() {
+    TilePane getGameBoard() {
         return gameBoard;
     }
 
-    private void showAlert(String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(alertType == Alert.AlertType.INFORMATION ? "Information" : "Warning");
-        alert.setContentText(message);
-        alert.showAndWait();
+    MenuBar getMenuBar() {
+        return menuBar;
     }
 }

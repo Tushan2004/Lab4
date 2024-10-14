@@ -23,7 +23,15 @@ public class SudokuModel {
 
     // Initialiserar brädet från en genererad matris
     public void initializeBoard() {
-        int[][][] matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
+        Random random = new Random();
+        int randomNumber = random.nextInt(3);
+        int[][][] matrix = null;
+        switch (randomNumber) {
+            case 0: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
+            case 1: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
+            case 2: matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
+        }
+
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -39,13 +47,6 @@ public class SudokuModel {
         }
     }
 
-    // Uppdatera en cell med användarens inmatning
-    public void updateCell(int row, int col, int value) {
-        if (isCellEditable(row, col)) {
-            board[row][col].setUserValue(value);
-        }
-    }
-
     // Kontrollera om en cell kan redigeras (om den var tom vid spelets start)
     public boolean isCellEditable(int row, int col) {
         return initialEmptyCells[row][col];
@@ -53,11 +54,15 @@ public class SudokuModel {
 
     // Kontrollera om ett värde finns i samma 3x3-sektion, rad eller kolumn
     public boolean checkFilledNumbers() {
+        int value;
+
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                int value = board[row][col].getUserValue();
-                if (value != 0 && (isValueInSection(row, col, value) || isValueInRow(row, value) || isValueInColumn(col, value))) {
-                    return false; // Värden är inte korrekta
+                if (board[row][col].getUserValue() != 0) {
+                    value = board[row][col].getUserValue();
+                    if (!(value == board[row][col].getSolutionValue())) {
+                        return false;
+                    }
                 }
             }
         }
@@ -119,10 +124,42 @@ public class SudokuModel {
     // Metoder för att kontrollera om ett värde redan finns i samma 3x3-sektion, rad eller kolumn
 
     // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
+    public void updateCell(int row, int col, int value) {
+        if (value == 0) {
+            board[row][col].setUserValue(value);
+            return;
+        }
+
+        // Kontrollera om värdet är giltigt (1-9) innan vi fortsätter
+        if (value < 1 || value > 9) {
+            return; // Om värdet är utanför intervallet, gör ingenting
+        }
+
+        // Kontrollera om värdet redan finns i den 3x3-sektionen
+        if (isValueInSection(row, col, value)) {
+            return; // Om värdet redan finns i sektionen, gör ingenting
+        }
+
+        // Kontrollera om värdet redan finns i samma rad
+        if (isValueInRow(row, value)) {
+            return; // Om värdet redan finns i raden, gör ingenting
+        }
+
+        // Kontrollera om värdet redan finns i samma kolumn
+        if (isValueInColumn(col, value)) {
+            return; // Om värdet redan finns i kolumnen, gör ingenting
+        }
+
+        board[row][col].setUserValue(value); // Sätt användarens värde
+    }
+
+    // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
     private boolean isValueInSection(int row, int col, int value) {
+        // Hitta vilken sektion vi befinner oss i
         int sectionRowStart = (row / 3) * 3; // Startrow för sektionen
         int sectionColStart = (col / 3) * 3; // Startcol för sektionen
 
+        // Kontrollera varje cell i sektionen
         for (int r = sectionRowStart; r < sectionRowStart + 3; r++) {
             for (int c = sectionColStart; c < sectionColStart + 3; c++) {
                 if (board[r][c].getDisplayValue() == value) {

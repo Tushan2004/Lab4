@@ -1,5 +1,6 @@
 package view;
 
+import javafx.scene.control.Alert;
 import model.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -60,13 +61,17 @@ public class SudokuController {
     }
 
     // 8. Check if currently filled numbers are correct
-    public boolean checkFilledNumbers() {
-        return model.checkFilledNumbers(); // Check if all filled numbers are correct
+    public void checkFilledNumbers() {
+        if (model.checkFilledNumbers()) {
+            view.showAlert("All numbers are correct!", Alert.AlertType.INFORMATION);
+        } else {
+            view.showAlert("There are incorrect numbers. Please check your entries.", Alert.AlertType.WARNING);
+        }
     }
 
     // 9. Get a brief description of the game rules
-    public String getGameRules() {
-        return "Fill in numbers from 1 to 9 in each row, column, and 3x3 section without repetitions."; // Simple rule description
+    public void getGameRules() {
+        view.showAlert(model.getGameRules(), Alert.AlertType.INFORMATION);
     }
 
     // 10. Get help by filling a randomly selected cell with the correct solution
