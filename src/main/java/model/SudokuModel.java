@@ -1,136 +1,168 @@
 package model;
 
 import javafx.scene.control.Alert;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
-public class SudokuModel implements Serializable{
+/**
+ * The SudokuModel class represents the logic for a Sudoku game, managing the board state,
+ * handling game initialization, difficulty levels, and providing hints and validation.
+ * This class is responsible for saving, loading, and updating the game state, as well as providing game rules.
+ */
+public class SudokuModel implements Serializable {
+
     public SudokuCell[][] board;  // 9x9 grid of SudokuCells
-    private boolean[][] initialEmptyCells;  // Spårar vilka celler som var tomma vid spelets start
-    public SudokuUtilities.SudokuLevel currentLevel; // Nuvarande svårighetsnivå
-    int[][][] matrix;
+    private boolean[][] initialEmptyCells;  // Tracks which cells were empty at the start of the game
+    public SudokuUtilities.SudokuLevel currentLevel;  // Current difficulty level
+    int[][][] matrix;  // Internal matrix representation of the board
 
+    /**
+     * Default constructor initializes the Sudoku board and sets the difficulty level to EASY.
+     */
     public SudokuModel() {
         board = new SudokuCell[9][9];
-        initialEmptyCells = new boolean[9][9]; // True om cellen var tom från början
-        currentLevel = SudokuUtilities.SudokuLevel.EASY;// Standard svårighetsnivå
+        initialEmptyCells = new boolean[9][9]; // True if the cell was empty at the start
+        currentLevel = SudokuUtilities.SudokuLevel.EASY; // Default difficulty level
         matrix = null;
         initializeBoard(currentLevel);
     }
 
-    // Initialiserar brädet från en genererad matris
+    /**
+     * Initializes the Sudoku board based on the provided difficulty level.
+     *
+     * @param level the difficulty level for the game (EASY, MEDIUM, or HARD)
+     */
     public void initializeBoard(SudokuUtilities.SudokuLevel level) {
-
         switch (level) {
             case EASY:
                 matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.EASY);
                 currentLevel = SudokuUtilities.SudokuLevel.EASY;
-                break;  // Avbryt efter att ha tilldelat matris för EASY
+                break;
             case MEDIUM:
                 matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.MEDIUM);
                 currentLevel = SudokuUtilities.SudokuLevel.MEDIUM;
-                break;  // Avbryt efter att ha tilldelat matris för MEDIUM
+                break;
             case HARD:
                 matrix = SudokuUtilities.generateSudokuMatrix(SudokuUtilities.SudokuLevel.HARD);
                 currentLevel = SudokuUtilities.SudokuLevel.HARD;
-                break;  // Avbryt efter att ha tilldelat matris för HARD
+                break;
         }
-
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 int initialValue = matrix[row][col][0];
                 int solutionValue = matrix[row][col][1];
-                boolean isVisible = initialValue != 0;  // Om initialvärdet är noll, är rutan dold.
+                boolean isVisible = initialValue != 0;  // If the initial value is zero, the cell is hidden
 
                 board[row][col] = new SudokuCell(initialValue, solutionValue, isVisible);
 
-                // Spåra vilka celler som var tomma vid start (där initialValue är 0)
+                // Track which cells were empty at the start (where initialValue is 0)
                 initialEmptyCells[row][col] = (initialValue == 0);
             }
         }
     }
 
-    // Kontrollera om en cell kan redigeras (om den var tom vid spelets start)
+    /**
+     * Checks if a cell can be edited by the user (if it was empty at the start of the game).
+     *
+     * @param row the row index of the cell
+     * @param col the column index of the cell
+     * @return true if the cell was empty at the start, false otherwise
+     */
     public boolean isCellEditable(int row, int col) {
         return initialEmptyCells[row][col];
     }
 
-    // Kontrollera om ett värde finns i samma 3x3-sektion, rad eller kolumn
+    /**
+     * Checks if all filled numbers in the board are correct based on the solution.
+     *
+     * @return true if all filled numbers are correct, false otherwise
+     */
     public boolean checkFilledNumbers() {
-        int value;
-
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 if (board[row][col].getUserValue() != 0) {
-                    if (!(board[row][col].isCorrect())) {
+                    if (!board[row][col].isCorrect()) {
                         return false;
                     }
                 }
             }
         }
-        return true; // Allt är korrekt ifyllt
+        return true; // All filled numbers are correct
     }
 
-    // Spara ett oavslutat spel till fil
+    /**
+     * Saves the current game state to a file.
+     *
+     * @param fileName the name of the file to save the game state to
+     * @param model the current Sudoku model
+     */
     public void saveGameToFile(String fileName, SudokuModel model) {
         File file = new File(fileName);
         try {
-            SudokuIO.serializeToFile(file, this); // Serialisera modellen till fil
+            SudokuIO.serializeToFile(file, this);  // Serialize the model to the file
             System.out.println("Game saved successfully to " + file.getAbsolutePath());
         } catch (IOException ex) {
             System.out.println("Failed to save game: " + ex.getMessage());
         }
     }
 
-    // Ladda ett sparat spel från fil
+    /**
+     * Loads a previously saved game from a file.
+     *
+     * @param filepath the path of the file to load the game from
+     */
     public void loadGame(String filepath) {
         File file = new File(filepath);
-
         if (file.exists()) {
             try {
-                SudokuModel loadedModel = SudokuIO.deSerializeFromFile(file); // Deserialize model
-                this.updateFrom(loadedModel); // Update current model's state from loaded model
-                //updateNumberTiles(); // Update the UI based on the loaded model
-                //showAlert("Game loaded successfully from " + SAVE_FILE + "!", Alert.AlertType.INFORMATION);
+                SudokuModel loadedModel = SudokuIO.deSerializeFromFile(file);  // Deserialize model
+                this.updateFrom(loadedModel);  // Update current model's state from loaded model
             } catch (IOException | ClassNotFoundException ex) {
-                //showAlert("Failed to load game: " + ex.getMessage(), Alert.AlertType.ERROR);
+                // Handle exception
             }
         } else {
-            //showAlert("No saved game found in " + SAVE_FILE + ".", Alert.AlertType.WARNING);
+            // Handle case where no saved game is found
         }
     }
 
-
+    /**
+     * Updates the current SudokuModel with data from another model.
+     *
+     * @param otherModel the SudokuModel to update from
+     */
     public void updateFrom(SudokuModel otherModel) {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 this.board[row][col].setInitialValue(otherModel.board[row][col].getInitialValue());
                 this.board[row][col].setSolutionValue(otherModel.board[row][col].getSolutionValue());
                 this.board[row][col].setVisible(otherModel.board[row][col].isVisible());
-                this.board[row][col].setUserValue(otherModel.board[row][col].getUserValue()); // Kopiera userValue
+                this.board[row][col].setUserValue(otherModel.board[row][col].getUserValue());  // Copy user value
             }
         }
         this.currentLevel = otherModel.currentLevel;  // Update the difficulty level
     }
 
-
-    // Rensar alla celler som var tomma vid spelets start
+    /**
+     * Clears all cells that were empty at the start of the game by setting their values to zero.
+     */
     public void clearAllEmptyCells() {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 if (initialEmptyCells[row][col]) {
-                    board[row][col].setUserValue(0); // Sätter cellens värde till tomt (0)
+                    board[row][col].setUserValue(0);  // Set the cell's value to zero
                 }
             }
         }
     }
 
-    // Returnerar en 2D-array för att visa i vyn
+    /**
+     * Returns the current state of the board for display purposes.
+     *
+     * @return a 2D array representing the current display values of the board
+     */
     public int[][] getBoardState() {
         int[][] state = new int[9][9];
         for (int row = 0; row < 9; row++) {
@@ -141,100 +173,61 @@ public class SudokuModel implements Serializable{
         return state;
     }
 
-    // Metoder för att kontrollera om ett värde redan finns i samma 3x3-sektion, rad eller kolumn
-
-    // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
+    /**
+     * Updates the value of a specific cell on the board based on user input.
+     *
+     * @param row the row index of the cell
+     * @param col the column index of the cell
+     * @param value the value to set in the cell (should be between 1 and 9)
+     */
     public void updateCell(int row, int col, int value) {
-
         if (value == 0) {
             board[row][col].setUserValue(0);
         }
-
-        // Kontrollera om värdet är giltigt (1-9) innan vi fortsätter
         if (value < 1 || value > 9) {
-            return; // Om värdet är utanför intervallet, gör ingenting
+            return;  // Do nothing if the value is out of range
         }
-/*
-        // Kontrollera om värdet redan finns i den 3x3-sektionen
-        if (isValueInSection(row, col, value)) {
-            return; // Om värdet redan finns i sektionen, gör ingenting
-        }
-
-        // Kontrollera om värdet redan finns i samma rad
-        if (isValueInRow(row, value)) {
-            return; // Om värdet redan finns i raden, gör ingenting
-        }
-
-        // Kontrollera om värdet redan finns i samma kolumn
-        if (isValueInColumn(col, value)) {
-            return; // Om värdet redan finns i kolumnen, gör ingenting
-        }*/
-
-        board[row][col].setUserValue(value); // Sätt användarens värde
-        //isDone();
+        board[row][col].setUserValue(value);  // Set the user's value
     }
 
-    /*
-    // Ny metod för att kontrollera om ett värde redan finns i 3x3-sektionen
-    private boolean isValueInSection(int row, int col, int value) {
-        // Hitta vilken sektion vi befinner oss i
-        int sectionRowStart = (row / 3) * 3; // Startrow för sektionen
-        int sectionColStart = (col / 3) * 3; // Startcol för sektionen
-
-        // Kontrollera varje cell i sektionen
-        for (int r = sectionRowStart; r < sectionRowStart + 3; r++) {
-            for (int c = sectionColStart; c < sectionColStart + 3; c++) {
-                if (board[r][c].getDisplayValue() == value) {
-                    return true; // Om värdet finns, returnera true
-                }
-            }
-        }
-        return false; // Om värdet inte finns, returnera false
-    }
-
-    // Ny metod för att kontrollera om ett värde redan finns i samma rad
-    private boolean isValueInRow(int row, int value) {
-        for (int col = 0; col < 9; col++) {
-            if (board[row][col].getDisplayValue() == value) {
-                return true; // Om värdet finns i raden, returnera true
-            }
-        }
-        return false; // Om värdet inte finns, returnera false
-    }
-
-    // Ny metod för att kontrollera om ett värde redan finns i samma kolumn
-    private boolean isValueInColumn(int col, int value) {
-        for (int row = 0; row < 9; row++) {
-            if (board[row][col].getDisplayValue() == value) {
-                return true; // Om värdet finns i kolumnen, returnera true
-            }
-        }
-        return false; // Om värdet inte finns, returnera false
-    }*/
-
-    // Ny metod för att hämta lösningsvärdet för en viss cell
+    /**
+     * Returns the solution value for a specific cell.
+     *
+     * @param row the row index of the cell
+     * @param col the column index of the cell
+     * @return the solution value of the cell
+     */
     public int getSolutionValue(int row, int col) {
         return board[row][col].getSolutionValue();
     }
 
-    // Ny metod för att ställa in svårighetsnivå
+    /**
+     * Sets the difficulty level and initializes the board with a new game.
+     *
+     * @param level the new difficulty level
+     */
     public void setDifficulty(SudokuUtilities.SudokuLevel level) {
-        currentLevel = level; // Spara den nya svårighetsnivån
-        initializeBoard(level); // Generera en ny spelomgång
+        currentLevel = level;  // Save the new difficulty level
+        initializeBoard(level);  // Generate a new game based on the difficulty level
     }
 
-    // Ny metod för att få spelregler
+    /**
+     * Provides the game rules for Sudoku.
+     *
+     * @return a string explaining the rules of Sudoku
+     */
     public String getGameRules() {
-        return "Spelet går ut på att fylla i siffrorna 1–9 i varje rad, kolumn och 3x3-ruta, " +
-                "utan upprepning. Fyll i tomma rutor, och använd hjälpmedel vid behov.";
+        return "The goal is to fill the 9x9 grid so that every row, column, and 3x3 box contains the numbers 1-9 without repetition.";
     }
 
-    // Ny metod för att ge hjälp
+    /**
+     * Provides a hint by filling in a random empty cell with its solution value.
+     */
     public void provideHint() {
         Random random = new Random();
         List<int[]> emptyCells = new ArrayList<>();
 
-        // Samla alla tomma celler
+        // Collect all empty cells
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 if (board[row][col].getDisplayValue() == 0) {
@@ -244,15 +237,20 @@ public class SudokuModel implements Serializable{
         }
 
         if (!emptyCells.isEmpty()) {
-            // Välj en slumpmässig cell
+            // Select a random empty cell and fill it with the solution value
             int[] cell = emptyCells.get(random.nextInt(emptyCells.size()));
             int row = cell[0];
             int col = cell[1];
             int solutionValue = getSolutionValue(row, col);
-            updateCell(row, col, solutionValue); // Fyll i cellen med lösningsvärdet
+            updateCell(row, col, solutionValue);  // Fill the cell with the solution value
         }
     }
 
+    /**
+     * Checks if the board is completely filled.
+     *
+     * @return true if the board is completely filled, false otherwise
+     */
     public boolean isBoardFilled() {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -264,17 +262,21 @@ public class SudokuModel implements Serializable{
         return true;
     }
 
+    /**
+     * Checks if the entire board is correctly filled based on the solution values.
+     *
+     * @return true if the board is fully solved, false otherwise
+     */
     public boolean isDone() {
-
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                if (!(board[row][col].isCorrect())) {
-                    System.out.println("fel");
+                if (!board[row][col].isCorrect()) {
+                    System.out.println("Incorrect");
                     return false;
                 }
             }
         }
-        System.out.println("klar");
+        System.out.println("Solved");
         return true;
     }
 }

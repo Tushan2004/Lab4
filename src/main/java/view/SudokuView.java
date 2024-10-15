@@ -18,7 +18,7 @@ import javafx.application.Platform;
 
 
 import java.io.File;
-import java.io.IOException;
+
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -49,9 +49,7 @@ public class SudokuView extends Parent {
     public SudokuView(SudokuModel model) {
         this.model = model;
         this.numberTiles = new Label[GRID_SIZE][GRID_SIZE]; // Initialize number tiles
-        //this.gameBoard = new TilePane();
-        //this.gameBoard.setPrefColumns(9);
-        //this.gameBoard.setMaxWidth(270); // Use 9 columns for the Sudoku board
+
 
         initLayout(); // Initialize layout components
     }
@@ -200,23 +198,6 @@ public class SudokuView extends Parent {
         }
     }
 
-    /*
-    void updateBoard() {
-        int[][] currentBoard = model.getBoardState(); // Get current board from model
-        gameBoard.getChildren().clear(); // Clear old cells
-
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
-                Label cellLabel = new Label(currentBoard[row][col] == 0 ? "" : String.valueOf(currentBoard[row][col]));
-                cellLabel.setPrefWidth(30);
-                cellLabel.setPrefHeight(30);
-                cellLabel.setAlignment(Pos.CENTER);
-                cellLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
-                gameBoard.getChildren().add(cellLabel);
-            }
-        }
-    }*/
-
     // Händelsehantering
     void addEventHandlers(SudokuController controller) {
         EventHandler<MouseEvent> tileClickHandler = event -> {
@@ -308,11 +289,4 @@ public class SudokuView extends Parent {
         return mainLayout;
     }
 
-    //TilePane getGameBoard() {
-    //  return gameBoard;
-    //}
-
-    MenuBar getMenuBar() {
-        return menuBar;
-    }
 }
