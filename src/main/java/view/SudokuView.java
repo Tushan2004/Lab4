@@ -163,8 +163,8 @@ public class SudokuView extends Parent {
                     numberTiles[row][col].setText(""); // Töm rutan om värdet är 0
                 } else {
                     if (model.board[row][col].getInitialValue() == 0){
-                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20)); // Ändra till önskat teckensnitt
-                        numberTiles[row][col].setTextFill(Color.RED); // Färg för användarens ifyllda nummer
+                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.LIGHT, 20)); // Ändra till önskat teckensnitt
+                        numberTiles[row][col].setTextFill(Color.BLACK); // Färg för användarens ifyllda nummer
                     } else {
                         // För fasta värden, använd annan stil
                         numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20));
