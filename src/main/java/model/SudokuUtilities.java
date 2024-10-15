@@ -37,7 +37,7 @@ public class SudokuUtilities {
             case HARD: representationString = hard; break;
             default: representationString = medium;
         }
-        if (randomNumber == 0) {
+        if (randomNumber == 0 || randomNumber == 1 || randomNumber == 2) {
             String newMatrix = randomizeStartMatrix(representationString);
             return convertStringToIntMatrix(newMatrix);
         }
