@@ -1,11 +1,13 @@
-package view;
+package com.lab4;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.SudokuModel;
+import view.SudokuController;
+import view.SudokuView;
 
-public class ViewTest extends Application {
+public class SudokuMain extends Application {
 
     @Override
     public void start(Stage primaryStage) {
