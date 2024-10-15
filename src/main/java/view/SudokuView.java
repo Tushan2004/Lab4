@@ -18,7 +18,7 @@ import javafx.application.Platform;
 
 
 import java.io.File;
-
+import java.io.IOException;
 
 public class SudokuView extends Parent {
     private static final int GRID_SIZE = 9;
@@ -26,7 +26,6 @@ public class SudokuView extends Parent {
     private static final int SECTIONS_PER_ROW = 3;
 
     private SudokuModel model;
-    //private TilePane gameBoard;
     private int selectedNumber;
 
     // GUI elements
@@ -50,43 +49,11 @@ public class SudokuView extends Parent {
         this.model = model;
         this.numberTiles = new Label[GRID_SIZE][GRID_SIZE]; // Initialize number tiles
 
-
         initLayout(); // Initialize layout components
     }
 
-    public String saveGame(Stage stage) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Spara Sudoku Spel");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
-
-        // Visa dialogen för att välja var filen ska sparas
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            if (!file.getName().endsWith(".sudoku")) {
-                file = new File(file.getAbsolutePath() + ".sudoku");
-            }
-            return file.getAbsolutePath(); // Returnera sökvägen till filen
-        }
-        return null; // Om ingen fil valdes
-    }
-
-    public String loadGame(Stage stage) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Ladda Sudoku Spel");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
-
-        // Visa dialogen för att välja fil
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            return file.getAbsolutePath(); // Returnera sökvägen till filen
-        }
-        return null; // Om ingen fil valdes
-    }
-
-
-
     void initLayout() {
-        initNumberTiles(); // Initialize number tiles
+        updateNumberTiles();
         numberPane = makeNumberPane(); // Create number pane
         numberPane.setPrefWidth(100); // Adjust to appropriate size
 
@@ -181,25 +148,37 @@ public class SudokuView extends Parent {
 
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
+                if (numberTiles[row][col] == null) {
+                    // Om rutan inte finns ännu, skapa den
+                    Label tile = new Label();
+                    tile.setPrefWidth(50);
+                    tile.setPrefHeight(50);
+                    tile.setAlignment(Pos.CENTER);
+                    tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
+                    numberTiles[row][col] = tile; // Lägg till i rutnätet
+                }
+
+                // Uppdatera rutans innehåll
                 if (boardState[row][col] == 0) {
-                    numberTiles[row][col].setText(""); // Set cell to empty
+                    numberTiles[row][col].setText(""); // Töm rutan om värdet är 0
                 } else {
                     if (model.board[row][col].getInitialValue() == 0){
                         numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20)); // Ändra till önskat teckensnitt
-                        numberTiles[row][col].setTextFill(Color.RED); // Du kan även ändra färg om du vill
+                        numberTiles[row][col].setTextFill(Color.RED); // Färg för användarens ifyllda nummer
                     } else {
-                        // Om initialvärdet inte är 0, använd ett annat teckensnitt eller standardteckensnittet
-                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20)); // Standard för fasta värden
-                        numberTiles[row][col].setTextFill(Color.BLACK); // Standardfärg för icke-redigerbara celler
+                        // För fasta värden, använd annan stil
+                        numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.BOLD, 20));
+                        numberTiles[row][col].setTextFill(Color.BLACK); // Färg för initiala värden
                     }
-                    numberTiles[row][col].setText(String.valueOf(boardState[row][col])); // Update number
+                    numberTiles[row][col].setText(String.valueOf(boardState[row][col])); // Uppdatera rutans nummer
                 }
             }
         }
     }
 
+
     // Händelsehantering
-    void addEventHandlers(SudokuController controller) {
+    public void addEventHandlers(SudokuController controller) {
         EventHandler<MouseEvent> tileClickHandler = event -> {
             for (int row = 0; row < GRID_SIZE; row++) {
                 for (int col = 0; col < GRID_SIZE; col++) {
@@ -246,25 +225,6 @@ public class SudokuView extends Parent {
         alert.showAndWait();
     }
 
-    // Interna layoutmetoder
-    private void initNumberTiles() {
-        Font font = Font.font("Monospaced", FontWeight.EXTRA_BOLD, 20);
-        Font font1 = Font.font("Monospaced", FontWeight.LIGHT, 20);
-        int[][] array = model.getBoardState(); // Get board from model
-
-        for (int row = 0; row < GRID_SIZE; row++) {
-            for (int col = 0; col < GRID_SIZE; col++) {
-                Label tile = new Label(array[row][col] == 0 ? "" : String.valueOf(array[row][col]));
-                tile.setPrefWidth(50);
-                tile.setPrefHeight(50);
-                tile.setFont(font);
-                tile.setAlignment(Pos.CENTER);
-                tile.setStyle("-fx-border-color: black; -fx-border-width: 0.5px;");
-                numberTiles[row][col] = tile;
-            }
-        }
-    }
-
     private GridPane makeNumberPane() {
         GridPane root = new GridPane();
         root.setStyle("-fx-border-color: black; -fx-border-width: 1.0px; -fx-background-color: white;");
@@ -285,8 +245,40 @@ public class SudokuView extends Parent {
     }
 
     // Getters för layout och spelkomponenter
-    VBox getMainLayout() {
+    public VBox getMainLayout() {
         return mainLayout;
     }
 
+    MenuBar getMenuBar() {
+        return menuBar;
+    }
+
+    public String saveGame(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Spara Sudoku Spel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
+
+        // Visa dialogen för att välja var filen ska sparas
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if (!file.getName().endsWith(".sudoku")) {
+                file = new File(file.getAbsolutePath() + ".sudoku");
+            }
+            return file.getAbsolutePath(); // Returnera sökvägen till filen
+        }
+        return null; // Om ingen fil valdes
+    }
+
+    public String loadGame(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Ladda Sudoku Spel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
+
+        // Visa dialogen för att välja fil
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            return file.getAbsolutePath(); // Returnera sökvägen till filen
+        }
+        return null; // Om ingen fil valdes
+    }
 }
