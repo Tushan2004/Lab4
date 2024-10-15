@@ -179,27 +179,33 @@ public class SudokuView extends Parent {
 
     // Händelsehantering
     public void addEventHandlers(SudokuController controller) {
-        EventHandler<MouseEvent> tileClickHandler = event -> {
-            for (int row = 0; row < GRID_SIZE; row++) {
-                for (int col = 0; col < GRID_SIZE; col++) {
-                    if (event.getSource() == numberTiles[row][col]) {
-                        if (selectedNumber == 10) {
-                            controller.clearCell(row, col);
-                        } else {
-                            controller.fillCell(row, col, selectedNumber);
+        EventHandler<MouseEvent> tileClickHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                // Bestäm vilken cell som klickades
+                for (int row = 0; row < GRID_SIZE; row++) {
+                    for (int col = 0; col < GRID_SIZE; col++) {
+                        if (event.getSource() == numberTiles[row][col]) {
+                            if (selectedNumber == 10) {
+                                controller.clearCell(row, col); // Rensa cell om "C" är valt
+                            } else {
+                                controller.fillCell(row, col, selectedNumber); // Fyll cellen
+                            }
+                            return; // Avsluta efter att cellen har hanterats
                         }
-                        return;
                     }
                 }
             }
         };
 
+        // Sätt event handler för varje cell
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
                 numberTiles[row][col].setOnMouseClicked(tileClickHandler);
             }
         }
 
+        // Hantering av övriga kontroller
         clearBoardItem.setOnAction(e -> controller.clearAllFilledCells());
         hintButton.setOnAction(e -> controller.getHint());
         checkButton.setOnAction(e -> controller.checkFilledNumbers());
@@ -214,8 +220,9 @@ public class SudokuView extends Parent {
         saveGameItem.setOnAction(e -> {
             controller.saveGameToFile((Stage) mainLayout.getScene().getWindow());
         });
-       exitItem.setOnAction(e -> Platform.exit());
+        exitItem.setOnAction(e -> Platform.exit());
     }
+
 
     // Hjälpmetoder
     void showAlert(String message, Alert.AlertType alertType) {
