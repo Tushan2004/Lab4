@@ -2,7 +2,6 @@ package view;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -20,7 +19,7 @@ import javafx.application.Platform;
 import java.io.File;
 import java.io.IOException;
 
-public class SudokuView extends Parent {
+public class SudokuView  {
     private static final int GRID_SIZE = 9;
     private static final int SECTION_SIZE = 3;
     private static final int SECTIONS_PER_ROW = 3;
@@ -52,7 +51,7 @@ public class SudokuView extends Parent {
         initLayout(); // Initialize layout components
     }
 
-    void initLayout() {
+    private void initLayout() {
         updateNumberTiles();
         numberPane = makeNumberPane(); // Create number pane
         numberPane.setPrefWidth(100); // Adjust to appropriate size
@@ -162,7 +161,7 @@ public class SudokuView extends Parent {
                 if (boardState[row][col] == 0) {
                     numberTiles[row][col].setText(""); // Töm rutan om värdet är 0
                 } else {
-                    if (model.board[row][col].getInitialValue() == 0){
+                    if (model.copiedBoard[row][col].getInitialValue() == 0){
                         numberTiles[row][col].setFont(Font.font("Monospaced", FontWeight.LIGHT, 20)); // Ändra till önskat teckensnitt
                         numberTiles[row][col].setTextFill(Color.BLACK); // Färg för användarens ifyllda nummer
                     } else {
@@ -215,10 +214,18 @@ public class SudokuView extends Parent {
         medium.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.MEDIUM));
         hard.setOnAction(e -> controller.chooseDifficulty(SudokuUtilities.SudokuLevel.HARD));
         loadGameItem.setOnAction(e -> {
-            controller.loadGameFromFile((Stage) mainLayout.getScene().getWindow());
+            try {
+                controller.loadGameFromFile((Stage) mainLayout.getScene().getWindow());
+            } catch (IOException | ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
         });
         saveGameItem.setOnAction(e -> {
-            controller.saveGameToFile((Stage) mainLayout.getScene().getWindow());
+            try {
+                controller.saveGameToFile((Stage) mainLayout.getScene().getWindow());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         });
         exitItem.setOnAction(e -> Platform.exit());
     }
@@ -256,11 +263,7 @@ public class SudokuView extends Parent {
         return mainLayout;
     }
 
-    MenuBar getMenuBar() {
-        return menuBar;
-    }
-
-    public String saveGame(Stage stage) {
+    String saveGame(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Spara Sudoku Spel");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));
@@ -276,7 +279,7 @@ public class SudokuView extends Parent {
         return null; // Om ingen fil valdes
     }
 
-    public String loadGame(Stage stage) {
+    String loadGame(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Ladda Sudoku Spel");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sudoku Files", "*.sudoku"));

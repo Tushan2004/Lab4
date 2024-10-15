@@ -4,7 +4,7 @@ package model;
  * This class provides methods for manipulating Sudoku board configurations, including
  * horizontal and vertical mirroring, and swapping values in the Sudoku grid.
  */
-public class GenerateNewStartPositions extends SudokuUtilities{
+public class GenerateNewStartPositions extends SudokuUtilities {
 
     /**
      * Mirrors the Sudoku grid horizontally.
@@ -77,8 +77,8 @@ public class GenerateNewStartPositions extends SudokuUtilities{
         int[][][] matrix = convertStringToIntMatrix(stringRepresentation);
 
         // Traverse the matrix and swap values of 1 and 2
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
                 if (matrix[i][j][1] == 1) {
                     matrix[i][j][1] = 2;
                     if (matrix[i][j][0] != 0) {

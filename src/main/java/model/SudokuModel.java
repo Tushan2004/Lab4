@@ -1,6 +1,5 @@
 package model;
 
-import javafx.scene.control.Alert;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +12,18 @@ import java.util.Random;
  */
 public class SudokuModel implements Serializable {
 
-    public SudokuCell[][] board;  // 9x9 grid of SudokuCells
+    private SudokuCell[][] board;  // 9x9 grid of SudokuCells
+    public SudokuCell[][] copiedBoard;
     private boolean[][] initialEmptyCells;  // Tracks which cells were empty at the start of the game
     public SudokuUtilities.SudokuLevel currentLevel;  // Current difficulty level
-    int[][][] matrix;  // Internal matrix representation of the board
+    private int[][][] matrix;  // Internal matrix representation of the board
 
     /**
      * Default constructor initializes the Sudoku board and sets the difficulty level to EASY.
      */
     public SudokuModel() {
         board = new SudokuCell[9][9];
+        copiedBoard = new SudokuCell[9][9];
         initialEmptyCells = new boolean[9][9]; // True if the cell was empty at the start
         currentLevel = SudokuUtilities.SudokuLevel.EASY; // Default difficulty level
         matrix = null;
@@ -57,12 +58,25 @@ public class SudokuModel implements Serializable {
                 boolean isVisible = initialValue != 0;  // If the initial value is zero, the cell is hidden
 
                 board[row][col] = new SudokuCell(initialValue, solutionValue, isVisible);
+                copiedBoard[row][col] = new SudokuCell(initialValue, solutionValue, isVisible);
 
                 // Track which cells were empty at the start (where initialValue is 0)
                 initialEmptyCells[row][col] = (initialValue == 0);
             }
         }
     }
+
+    private void copyBoard() {
+
+        // Iterera genom varje rad och kolumn i den befintliga board
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                // Skapa en ny SudokuCell baserat på den befintliga
+                copiedBoard[row][col] = new SudokuCell(board[row][col].getInitialValue(),board[row][col].getSolutionValue(),board[row][col].isVisible());
+            }
+        }
+    }
+
 
     /**
      * Checks if a cell can be edited by the user (if it was empty at the start of the game).
@@ -94,46 +108,11 @@ public class SudokuModel implements Serializable {
     }
 
     /**
-     * Saves the current game state to a file.
-     *
-     * @param fileName the name of the file to save the game state to
-     * @param model the current Sudoku model
-     */
-    public void saveGameToFile(String fileName, SudokuModel model) {
-        File file = new File(fileName);
-        try {
-            SudokuIO.serializeToFile(file, model);  // Serialize the model to the file
-            System.out.println("Game saved successfully to " + file.getAbsolutePath());
-        } catch (IOException ex) {
-            System.out.println("Failed to save game: " + ex.getMessage());
-        }
-    }
-
-    /**
-     * Loads a previously saved game from a file.
-     *
-     * @param filepath the path of the file to load the game from
-     */
-    public void loadGame(String filepath) {
-        File file = new File(filepath);
-        if (file.exists()) {
-            try {
-                SudokuModel loadedModel = SudokuIO.deSerializeFromFile(file);  // Deserialize model
-                this.updateFrom(loadedModel);  // Update current model's state from loaded model
-            } catch (IOException | ClassNotFoundException ex) {
-                // Handle exception
-            }
-        } else {
-            // Handle case where no saved game is found
-        }
-    }
-
-    /**
      * Updates the current SudokuModel with data from another model.
      *
      * @param otherModel the SudokuModel to update from
      */
-    public void updateFrom(SudokuModel otherModel) {
+    public void updateBoardFromFile(SudokuModel otherModel) {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 this.board[row][col].setInitialValue(otherModel.board[row][col].getInitialValue());
@@ -188,17 +167,8 @@ public class SudokuModel implements Serializable {
             return;  // Do nothing if the value is out of range
         }
         board[row][col].setUserValue(value);  // Set the user's value
-    }
 
-    /**
-     * Returns the solution value for a specific cell.
-     *
-     * @param row the row index of the cell
-     * @param col the column index of the cell
-     * @return the solution value of the cell
-     */
-    public int getSolutionValue(int row, int col) {
-        return board[row][col].getSolutionValue();
+        copyBoard();
     }
 
     /**
@@ -241,7 +211,7 @@ public class SudokuModel implements Serializable {
             int[] cell = emptyCells.get(random.nextInt(emptyCells.size()));
             int row = cell[0];
             int col = cell[1];
-            int solutionValue = getSolutionValue(row, col);
+            int solutionValue = board[row][col].getSolutionValue();
             updateCell(row, col, solutionValue);  // Fill the cell with the solution value
         }
     }

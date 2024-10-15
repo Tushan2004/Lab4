@@ -1,6 +1,5 @@
 package model;
 
-import model.*;
 import java.io.*;
 
 /**
@@ -17,7 +16,7 @@ public class SudokuIO {
      * @param data the SudokuModel object to serialize
      * @throws IOException if an I/O error occurs while writing to the file
      */
-    public static void serializeToFile(File file, SudokuModel data) throws IOException {
+    static void serializeToFile(File file, SudokuModel data) throws IOException {
         ObjectOutputStream oos = null; // Create a reference for ObjectOutputStream
         try {
             oos = new ObjectOutputStream(new FileOutputStream(file));
@@ -38,7 +37,7 @@ public class SudokuIO {
      * @throws ClassNotFoundException if the class of the serialized object cannot be found
      */
     @SuppressWarnings("unchecked")
-    public static SudokuModel deSerializeFromFile(File file) throws IOException, ClassNotFoundException {
+    static SudokuModel deSerializeFromFile(File file) throws IOException, ClassNotFoundException {
         ObjectInputStream ois = null; // Create a reference for ObjectInputStream
         try {
             ois = new ObjectInputStream(new FileInputStream(file));
@@ -47,6 +46,41 @@ public class SudokuIO {
             if (ois != null) {
                 ois.close();  // Ensure the stream is closed to avoid resource leaks
             }
+        }
+    }
+
+    /**
+     * Saves the current state of the Sudoku game to a specified file.
+     *
+     * @param fileName the name of the file to save the game to
+     * @param model    the current Sudoku model to serialize
+     * @throws IOException if an I/O error occurs during saving
+     */
+    public static void saveGameToFile(String fileName, SudokuModel model) throws IOException {
+        File file = new File(fileName);
+        serializeToFile(file, model);  // Serialize the model to the file
+        System.out.println("Game saved successfully to " + file.getAbsolutePath());
+    }
+
+    /**
+     * Loads a previously saved game from a file.
+     *
+     * @param filepath the path of the file to load the game from
+     * @throws IOException            if an I/O error occurs during loading
+     * @throws ClassNotFoundException if the class of a serialized object cannot be found
+     */
+    public static void loadGameFromFile(String filepath, SudokuModel model) throws IOException, ClassNotFoundException {
+        File file = new File(filepath);
+        if (file.exists()) {
+            try {
+                SudokuModel loadedModel = SudokuIO.deSerializeFromFile(file);  // Deserialize model
+                model.updateBoardFromFile(loadedModel);  // Update current model's state from loaded model
+            } catch (IOException | ClassNotFoundException ex) {
+                // Handle exception
+            }
+        } else {
+            // Handle case where no saved game is found
+            throw new IOException("No saved game found at " + filepath);
         }
     }
 

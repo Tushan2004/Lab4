@@ -28,6 +28,8 @@ public class SudokuCell implements Serializable {
         this.userValue = 0;  // Default user value is 0 when no input has been provided
     }
 
+    // Getters
+
     /**
      * Retrieves the display value for the cell.
      * If the initial value is visible, it will be displayed; otherwise, the user input value is displayed.
@@ -37,6 +39,44 @@ public class SudokuCell implements Serializable {
     public int getDisplayValue() {
         return isVisible ? initialValue : userValue;
     }
+
+    /**
+     * Retrieves the user input value for the cell.
+     *
+     * @return the value provided by the user
+     */
+    public int getUserValue() {
+        return userValue;
+    }
+
+    /**
+     * Retrieves the correct solution value for the cell.
+     *
+     * @return the solution value of the cell
+     */
+    public int getSolutionValue() {
+        return solutionValue;
+    }
+
+    /**
+     * Retrieves the initial value of the cell.
+     *
+     * @return the initial value of the cell
+     */
+    public int getInitialValue() {
+        return initialValue;
+    }
+
+    /**
+     * Checks if the initial value of the cell is visible to the user.
+     *
+     * @return true if the initial value is visible; false otherwise
+     */
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    // Setters
 
     /**
      * Sets the value input by the user.
@@ -57,37 +97,6 @@ public class SudokuCell implements Serializable {
     }
 
     /**
-     * Retrieves the user input value for the cell.
-     *
-     * @return the value provided by the user
-     */
-    public int getUserValue() {
-        return userValue;
-    }
-
-    /**
-     * Checks whether the user's input matches the correct solution value.
-     * If no user input is provided (i.e., userValue is 0), it checks if the initial value matches the solution.
-     *
-     * @return true if the user's input (or initial value) matches the solution; false otherwise
-     */
-    public boolean isCorrect() {
-        if (userValue == 0) {
-            return initialValue == solutionValue;
-        }
-        return userValue == solutionValue;
-    }
-
-    /**
-     * Retrieves the correct solution value for the cell.
-     *
-     * @return the solution value of the cell
-     */
-    public int getSolutionValue() {
-        return solutionValue;
-    }
-
-    /**
      * Sets the correct solution value for the cell.
      *
      * @param solutionValue the correct solution value to set
@@ -105,21 +114,15 @@ public class SudokuCell implements Serializable {
         isVisible = visible;
     }
 
-    /**
-     * Retrieves the initial value of the cell.
-     *
-     * @return the initial value of the cell
-     */
-    public int getInitialValue() {
-        return initialValue;
-    }
+    // Other methods
 
     /**
-     * Checks if the initial value of the cell is visible to the user.
+     * Checks whether the user's input matches the correct solution value.
+     * If no user input is provided (i.e., userValue is 0), it checks if the initial value matches the solution.
      *
-     * @return true if the initial value is visible; false otherwise
+     * @return true if the user's input (or initial value) matches the solution; false otherwise
      */
-    public boolean isVisible() {
-        return isVisible;
+    public boolean isCorrect() {
+        return userValue != 0 ? userValue == solutionValue : initialValue == solutionValue;
     }
 }
