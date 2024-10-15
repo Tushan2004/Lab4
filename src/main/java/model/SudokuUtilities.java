@@ -29,14 +29,19 @@ public class SudokuUtilities {
      */
     public static int[][][] generateSudokuMatrix(SudokuLevel level) {
         String representationString;
+        Random random = new Random();
+        int randomNumber = random.nextInt(4);
         switch (level) {
             case EASY: representationString = easy; break;
             case MEDIUM: representationString = medium; break;
             case HARD: representationString = hard; break;
             default: representationString = medium;
         }
-        String newMatrix = randomizeStartMatrix(representationString);
-        return convertStringToIntMatrix(newMatrix);
+        if (randomNumber == 0) {
+            String newMatrix = randomizeStartMatrix(representationString);
+            return convertStringToIntMatrix(newMatrix);
+        }
+        return convertStringToIntMatrix(representationString);
     }
 
     /**

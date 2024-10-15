@@ -102,7 +102,7 @@ public class SudokuModel implements Serializable {
     public void saveGameToFile(String fileName, SudokuModel model) {
         File file = new File(fileName);
         try {
-            SudokuIO.serializeToFile(file, this);  // Serialize the model to the file
+            SudokuIO.serializeToFile(file, model);  // Serialize the model to the file
             System.out.println("Game saved successfully to " + file.getAbsolutePath());
         } catch (IOException ex) {
             System.out.println("Failed to save game: " + ex.getMessage());
