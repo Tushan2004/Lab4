@@ -23,8 +23,6 @@ public class SudokuMain extends Application {
         primaryStage.sizeToScene();
         primaryStage.setResizable(false);
         primaryStage.show();
-
-        sudokuView.addEventHandlers(sudokuController);
     }
 
     public static void main(String[] args) {

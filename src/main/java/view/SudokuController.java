@@ -104,6 +104,6 @@ public class SudokuController {
                 view.showAlert("Board is not filled with correct values", Alert.AlertType.WARNING);
             }
         }
-        }
+    }
 }
 

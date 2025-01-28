@@ -37,7 +37,7 @@ public class SudokuUtilities {
             case HARD: representationString = hard; break;
             default: representationString = medium;
         }
-        if (randomNumber == 0 || randomNumber == 1 || randomNumber == 2) {
+        if (randomNumber != 0) {
             String newMatrix = randomizeStartMatrix(representationString);
             return convertStringToIntMatrix(newMatrix);
         }
@@ -142,7 +142,7 @@ public class SudokuUtilities {
 
     // Predefined string representations of easy, medium, and hard Sudoku puzzles and their solutions.
     private static final String easy =
-            "000914070" +
+                    "000914070" +
                     "010000054" +
                     "040002000" +
                     "007569001" +
@@ -162,7 +162,7 @@ public class SudokuUtilities {
                     "178493265";
 
     private static final String medium =
-            "300000010" +
+                    "300000010" +
                     "000050906" +
                     "050401200" +
                     "030000080" +
@@ -182,7 +182,7 @@ public class SudokuUtilities {
                     "143825697";
 
     private static final String hard =
-            "030600000" +
+                    "030600000" +
                     "000010070" +
                     "080000000" +
                     "000020000" +
